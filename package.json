@@ -1,0 +1,14 @@
+{
+  "name": "collabcode",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "workspaces": [
+    "client"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w client",
+    "build": "npm run build -w client",
+    "lint": "npm run lint -w client"
+  }
+}

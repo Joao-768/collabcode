@@ -1,0 +1,28 @@
+@import 'tailwindcss';
+
+/* Tema do CollabCode. No Tailwind v4 o tema define-se em CSS com @theme:
+   cada variavel aqui gera as utilities correspondentes (bg-surface, text-muted, ...). */
+@theme {
+  --color-canvas: #16171d;
+  --color-surface: #1f2028;
+  --color-border: #2e303a;
+  --color-muted: #9ca3af;
+  --color-heading: #f3f4f6;
+  --color-accent: #c084fc;
+
+  --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, Consolas, monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-canvas text-muted font-sans;
+  }
+}

@@ -1,0 +1,23 @@
+# Dependencias (com workspaces, o grosso fica na raiz)
+node_modules
+
+# Builds
+dist
+dist-ssr
+*.local
+
+# Variaveis de ambiente
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Editor / SO
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
