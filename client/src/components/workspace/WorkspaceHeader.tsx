@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { LuCheck, LuLink, LuArrowLeft } from 'react-icons/lu'
+import { LuCheck, LuLink, LuArrowLeft, LuPlay } from 'react-icons/lu'
 import { PresenceBar } from '@/components/workspace/PresenceBar'
 import type { PresenceUser } from '@/types'
 
@@ -8,9 +8,19 @@ type WorkspaceHeaderProps = {
     projectName: string
     users: PresenceUser[]
     currentUserId: string | undefined
+    canRun: boolean
+    running: boolean
+    onRun: () => void
 }
 
-export function WorkspaceHeader({ projectName, users, currentUserId }: WorkspaceHeaderProps) {
+export function WorkspaceHeader({
+    projectName,
+    users,
+    currentUserId,
+    canRun,
+    running,
+    onRun,
+}: WorkspaceHeaderProps) {
     const [copied, setCopied] = useState(false)
 
     async function handleShare() {
@@ -34,6 +44,15 @@ export function WorkspaceHeader({ projectName, users, currentUserId }: Workspace
 
             <div className="flex items-center gap-5">
                 <PresenceBar users={users} currentUserId={currentUserId} />
+
+                <button
+                    onClick={onRun}
+                    disabled={!canRun || running}
+                    className="flex items-center gap-1.5 rounded-lg border border-border-strong px-3 py-1.5 text-xs text-muted hover:text-heading disabled:opacity-40"
+                >
+                    <LuPlay className="size-3.5" />
+                    {running ? 'Running…' : 'Run'}
+                </button>
 
                 <button
                     onClick={handleShare}

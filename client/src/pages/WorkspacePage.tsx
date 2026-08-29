@@ -14,6 +14,9 @@ import { usePresence } from '@/hooks/usePresence'
 import { useAwareness } from '@/hooks/useAwareness'
 import { useChat } from '@/hooks/useChat'
 import { Chat } from '@/components/workspace/Chat'
+import { Console } from '@/components/workspace/Console'
+import { runJavaScript } from '@/lib/runner'
+import type { ConsoleLine } from '@/lib/runner'
 import { useAuthStore } from '@/stores/auth.store'
 
 export function WorkspacePage() {
@@ -37,6 +40,30 @@ export function WorkspacePage() {
         myColor,
     )
     const { messages, loading: chatLoading, send: sendMessage } = useChat(socket, projectId)
+
+    const [consoleLines, setConsoleLines] = useState<ConsoleLine[]>([])
+    const [running, setRunning] = useState(false)
+    const canRun = activeFile?.language === 'javascript'
+
+    const handleRun = useCallback(async () => {
+        if (!doc || !canRun) return
+
+        setRunning(true)
+        const code = doc.getText('content').toString()
+        const result = await runJavaScript(code)
+
+        setConsoleLines([
+            ...result.lines.map((line, index) => ({ ...line, id: `${Date.now()}-${index}` })),
+            {
+                id: `${Date.now()}-done`,
+                level: 'system' as const,
+                text: result.timedOut
+                    ? 'Process terminated'
+                    : `Process finished in ${result.durationMs}ms`,
+            },
+        ])
+        setRunning(false)
+    }, [doc, canRun])
 
     useEffect(() => {
         if (!projectId) return
@@ -164,6 +191,9 @@ export function WorkspacePage() {
                 projectName={project?.name ?? 'Workspace'}
                 users={presentUsers}
                 currentUserId={currentUser?.id}
+                canRun={canRun}
+                running={running}
+                onRun={() => void handleRun()}
             />
 
             {error && (
@@ -209,6 +239,8 @@ export function WorkspacePage() {
                     onSend={sendMessage}
                 />
             </div>
+
+            <Console lines={consoleLines} onClear={() => setConsoleLines([])} />
         </div>
     )
 }
