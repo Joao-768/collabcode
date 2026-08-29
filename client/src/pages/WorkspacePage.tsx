@@ -8,6 +8,7 @@ import { CodeEditor } from '@/components/workspace/CodeEditor'
 import { WorkspaceHeader } from '@/components/workspace/WorkspaceHeader'
 import { Spinner } from '@/components/ui/Spinner'
 import type { Project, ProjectFile, FileContent, SupportedLanguage } from '@/types'
+import { SOCKET_EVENTS } from '@/services/socket'
 import { useSocket } from '@/hooks/useSocket'
 import { useYDoc } from '@/hooks/useYDoc'
 import { usePresence } from '@/hooks/usePresence'
@@ -102,6 +103,45 @@ export function WorkspacePage() {
             active = false
         }
     }, [projectId])
+
+    // Keep the file tree in step with what other people in the room do.
+    useEffect(() => {
+        if (!socket) return
+
+        function handleCreated({ file }: { file: ProjectFile }) {
+            setFiles((list) =>
+                list.some((f) => f.id === file.id)
+                    ? list
+                    : [...list, file].sort((a, b) => a.name.localeCompare(b.name)),
+            )
+        }
+
+        function handleRenamed({ file }: { file: ProjectFile }) {
+            setFiles((list) =>
+                list
+                    .map((f) => (f.id === file.id ? file : f))
+                    .sort((a, b) => a.name.localeCompare(b.name)),
+            )
+            setActiveFile((current) =>
+                current && current.id === file.id ? { ...current, name: file.name } : current,
+            )
+        }
+
+        function handleDeleted({ fileId }: { fileId: string }) {
+            setFiles((list) => list.filter((f) => f.id !== fileId))
+            setActiveFile((current) => (current && current.id === fileId ? null : current))
+        }
+
+        socket.on(SOCKET_EVENTS.FILE_CREATED, handleCreated)
+        socket.on(SOCKET_EVENTS.FILE_RENAMED, handleRenamed)
+        socket.on(SOCKET_EVENTS.FILE_DELETED, handleDeleted)
+
+        return () => {
+            socket.off(SOCKET_EVENTS.FILE_CREATED, handleCreated)
+            socket.off(SOCKET_EVENTS.FILE_RENAMED, handleRenamed)
+            socket.off(SOCKET_EVENTS.FILE_DELETED, handleDeleted)
+        }
+    }, [socket])
 
     const handleSelect = useCallback(async (fileId: string) => {
         try {

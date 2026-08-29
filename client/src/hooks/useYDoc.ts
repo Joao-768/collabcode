@@ -3,6 +3,11 @@ import * as Y from 'yjs'
 import type { Socket } from 'socket.io-client'
 import { SOCKET_EVENTS } from '@/services/socket'
 
+// oxlint-disable react/set-state-in-effect -- these hooks exist to synchronise
+// React with external systems (a socket connection and Yjs documents). The
+// instances are created in the effect and must be published to render, which
+// is the case this rule is designed to allow.
+
 const REMOTE_ORIGIN = 'remote'
 
 export function useYDoc(socket: Socket | null, fileId: string | null) {

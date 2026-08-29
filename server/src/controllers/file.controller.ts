@@ -2,6 +2,8 @@ import type { RequestHandler } from 'express'
 import { z } from 'zod'
 import * as fileService from '../services/file.service.js'
 import { SUPPORTED_LANGUAGES } from '../services/file.service.js'
+import { emitToProject } from '../websocket/index.js'
+import { SOCKET_EVENTS } from '../websocket/events.js'
 
 const fileNameSchema = z
     .string()
@@ -25,7 +27,10 @@ export const list: RequestHandler = async (req, res) => {
 
 export const create: RequestHandler = async (req, res) => {
     const { name, language } = req.body as z.infer<typeof createFileSchema>
-    const file = await fileService.createFile(req.params.id as string, req.user!.id, name, language)
+    const projectId = req.params.id as string
+    const file = await fileService.createFile(projectId, req.user!.id, name, language)
+
+    emitToProject(projectId, SOCKET_EVENTS.FILE_CREATED, { file })
     res.status(201).json({ file })
 }
 
@@ -36,11 +41,17 @@ export const get: RequestHandler = async (req, res) => {
 
 export const rename: RequestHandler = async (req, res) => {
     const { name } = req.body as z.infer<typeof renameFileSchema>
+    const existing = await fileService.getFile(req.params.fileId as string, req.user!.id)
     const file = await fileService.renameFile(req.params.fileId as string, req.user!.id, name)
+
+    emitToProject(existing.projectId, SOCKET_EVENTS.FILE_RENAMED, { file })
     res.json({ file })
 }
 
 export const remove: RequestHandler = async (req, res) => {
-    await fileService.deleteFile(req.params.fileId as string, req.user!.id)
+    const fileId = req.params.fileId as string
+    const { projectId } = await fileService.deleteFile(fileId, req.user!.id)
+
+    emitToProject(projectId, SOCKET_EVENTS.FILE_DELETED, { fileId })
     res.status(204).end()
 }

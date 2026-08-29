@@ -26,10 +26,20 @@ declare module 'socket.io' {
     }
 }
 
+// Set once the socket server exists, so HTTP handlers can announce file
+// changes to the room without importing the server itself.
+let ioRef: Server | null = null
+
+export function emitToProject(projectId: string, event: string, payload: unknown): void {
+    ioRef?.to(projectId).emit(event, payload)
+}
+
 export function createSocketServer(httpServer: HttpServer): Server {
     const io = new Server(httpServer, {
         cors: { origin: env.CLIENT_ORIGIN, credentials: true },
     })
+
+    ioRef = io
 
     io.use(async (socket, next) => {
         try {

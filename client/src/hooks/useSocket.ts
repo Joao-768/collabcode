@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react'
 import type { Socket } from 'socket.io-client'
 import { getSocket, SOCKET_EVENTS } from '@/services/socket'
 
+// oxlint-disable react/set-state-in-effect -- these hooks exist to synchronise
+// React with external systems (a socket connection and Yjs documents). The
+// instances are created in the effect and must be published to render, which
+// is the case this rule is designed to allow.
+
 export function useSocket(projectId: string | undefined) {
     const [socket, setSocket] = useState<Socket | null>(null)
     const [connected, setConnected] = useState(false)
