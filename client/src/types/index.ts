@@ -44,3 +44,13 @@ export type PresenceUser = {
     name: string
     color: string
 }
+
+export type ChatMessage = {
+    id: string
+    content: string
+    createdAt: string
+    user: {
+        id: string
+        name: string
+    }
+}

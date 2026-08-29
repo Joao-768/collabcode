@@ -12,6 +12,8 @@ import { useSocket } from '@/hooks/useSocket'
 import { useYDoc } from '@/hooks/useYDoc'
 import { usePresence } from '@/hooks/usePresence'
 import { useAwareness } from '@/hooks/useAwareness'
+import { useChat } from '@/hooks/useChat'
+import { Chat } from '@/components/workspace/Chat'
 import { useAuthStore } from '@/stores/auth.store'
 
 export function WorkspacePage() {
@@ -34,6 +36,7 @@ export function WorkspacePage() {
         currentUser ?? undefined,
         myColor,
     )
+    const { messages, loading: chatLoading, send: sendMessage } = useChat(socket, projectId)
 
     useEffect(() => {
         if (!projectId) return
@@ -198,6 +201,13 @@ export function WorkspacePage() {
                         </div>
                     )}
                 </main>
+
+                <Chat
+                    messages={messages}
+                    loading={chatLoading}
+                    currentUserId={currentUser?.id}
+                    onSend={sendMessage}
+                />
             </div>
         </div>
     )

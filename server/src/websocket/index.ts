@@ -10,6 +10,7 @@ import { SOCKET_EVENTS } from './events.js'
 import type { RoomJoinPayload, DocumentUpdatePayload } from './events.js'
 import * as roomManager from './room.manager.js'
 import { registerPresence, broadcastPresence, colorForUser } from './presence.handler.js'
+import { registerChat } from './chat.handler.js'
 
 export type SocketUser = {
     id: string
@@ -57,6 +58,7 @@ export function createSocketServer(httpServer: HttpServer): Server {
         }
 
         registerPresence(socket)
+        registerChat(io, socket)
 
         socket.on(SOCKET_EVENTS.ROOM_JOIN, async ({ projectId }: RoomJoinPayload) => {
             const membership = await prisma.projectMember.findUnique({

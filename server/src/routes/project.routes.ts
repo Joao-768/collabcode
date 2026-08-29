@@ -3,6 +3,7 @@ import * as projectController from '../controllers/project.controller.js'
 import { validateBody } from '../middleware/validate.middleware.js'
 import { requireAuth } from '../middleware/auth.middleware.js'
 import * as fileController from '../controllers/file.controller.js'
+import * as messageController from '../controllers/message.controller.js'
 
 export const projectRoutes = Router()
 
@@ -23,3 +24,4 @@ projectRoutes.post(
     validateBody(fileController.createFileSchema),
     fileController.create,
 )
+projectRoutes.get('/:id/messages', messageController.list)
