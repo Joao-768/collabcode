@@ -1,4 +1,5 @@
 import * as Y from 'yjs'
+import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma.js'
 
 const SAVE_DEBOUNCE_MS = 2000
@@ -58,7 +59,9 @@ function scheduleSave(fileId: string): void {
     }
 
     entry.saveTimer = setTimeout(() => {
-        void persist(fileId)
+        persist(fileId).catch((error: unknown) => {
+            console.error(`Failed to persist file ${fileId}:`, error)
+        })
     }, SAVE_DEBOUNCE_MS)
 }
 
@@ -74,10 +77,22 @@ export async function persist(fileId: string): Promise<void> {
     const state = Y.encodeStateAsUpdate(entry.doc)
     const content = entry.doc.getText('content').toString()
 
-    await prisma.file.update({
-        where: { id: fileId },
-        data: { ydoc: Buffer.from(state), content },
-    })
+    try {
+        await prisma.file.update({
+            where: { id: fileId },
+            data: { ydoc: Buffer.from(state), content },
+        })
+    } catch (error) {
+        // The file may have been deleted while someone still had it open.
+        // Drop the in-memory doc instead of crashing the process.
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+            entry.doc.destroy()
+            docs.delete(fileId)
+            return
+        }
+
+        throw error
+    }
 }
 
 export async function releaseDoc(fileId: string): Promise<void> {
