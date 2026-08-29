@@ -9,6 +9,7 @@ import { AUTH_COOKIE } from '../middleware/auth.middleware.js'
 import { SOCKET_EVENTS } from './events.js'
 import type { RoomJoinPayload, DocumentUpdatePayload } from './events.js'
 import * as roomManager from './room.manager.js'
+import { registerPresence, broadcastPresence, colorForUser } from './presence.handler.js'
 
 export type SocketUser = {
     id: string
@@ -49,6 +50,14 @@ export function createSocketServer(httpServer: HttpServer): Server {
     })
 
     io.on('connection', (socket) => {
+        socket.data.user = {
+            userId: socket.user!.id,
+            name: socket.user!.name,
+            color: colorForUser(socket.user!.id),
+        }
+
+        registerPresence(socket)
+
         socket.on(SOCKET_EVENTS.ROOM_JOIN, async ({ projectId }: RoomJoinPayload) => {
             const membership = await prisma.projectMember.findUnique({
                 where: { projectId_userId: { projectId, userId: socket.user!.id } },
@@ -61,6 +70,7 @@ export function createSocketServer(httpServer: HttpServer): Server {
 
             socket.projectId = projectId
             await socket.join(projectId)
+            await broadcastPresence(io, projectId)
         })
 
         socket.on(SOCKET_EVENTS.DOCUMENT_SYNC, async ({ fileId }: { fileId: string }) => {
@@ -97,6 +107,9 @@ export function createSocketServer(httpServer: HttpServer): Server {
         socket.on('disconnect', () => {
             if (socket.openFileId) {
                 void roomManager.releaseDoc(socket.openFileId)
+            }
+            if (socket.projectId) {
+                void broadcastPresence(io, socket.projectId)
             }
         })
     })

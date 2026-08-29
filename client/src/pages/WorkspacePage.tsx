@@ -10,9 +10,13 @@ import { Spinner } from '@/components/ui/Spinner'
 import type { Project, ProjectFile, FileContent, SupportedLanguage } from '@/types'
 import { useSocket } from '@/hooks/useSocket'
 import { useYDoc } from '@/hooks/useYDoc'
+import { usePresence } from '@/hooks/usePresence'
+import { useAwareness } from '@/hooks/useAwareness'
+import { useAuthStore } from '@/stores/auth.store'
 
 export function WorkspacePage() {
     const { id: projectId } = useParams<{ id: string }>()
+    const currentUser = useAuthStore((s) => s.user)
 
     const [project, setProject] = useState<Project | null>(null)
     const [files, setFiles] = useState<ProjectFile[]>([])
@@ -21,6 +25,15 @@ export function WorkspacePage() {
     const [error, setError] = useState<string | null>(null)
     const { socket } = useSocket(projectId)
     const { doc, synced } = useYDoc(socket, activeFile?.id ?? null)
+    const presentUsers = usePresence(socket)
+    const myColor = presentUsers.find((u) => u.userId === currentUser?.id)?.color
+    const awareness = useAwareness(
+        socket,
+        doc,
+        activeFile?.id ?? null,
+        currentUser ?? undefined,
+        myColor,
+    )
 
     useEffect(() => {
         if (!projectId) return
@@ -144,7 +157,11 @@ export function WorkspacePage() {
                 </p>
             </div>
 
-            <WorkspaceHeader projectName={project?.name ?? 'Workspace'} />
+            <WorkspaceHeader
+                projectName={project?.name ?? 'Workspace'}
+                users={presentUsers}
+                currentUserId={currentUser?.id}
+            />
 
             {error && (
                 <p className="m-0 border-b border-red-900/60 bg-red-950/40 px-4 py-2 text-xs text-red-300">
@@ -164,7 +181,12 @@ export function WorkspacePage() {
 
                 <main className="min-w-0 flex-1">
                     {activeFile ? (
-                        <CodeEditor language={activeFile.language} doc={doc} synced={synced} />
+                        <CodeEditor
+                            language={activeFile.language}
+                            doc={doc}
+                            synced={synced}
+                            awareness={awareness}
+                        />
                     ) : (
                         <div className="grid h-full place-items-center text-center">
                             <div>

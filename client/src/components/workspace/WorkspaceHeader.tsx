@@ -1,12 +1,16 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { LuCheck, LuLink, LuArrowLeft } from 'react-icons/lu'
+import { PresenceBar } from '@/components/workspace/PresenceBar'
+import type { PresenceUser } from '@/types'
 
 type WorkspaceHeaderProps = {
     projectName: string
+    users: PresenceUser[]
+    currentUserId: string | undefined
 }
 
-export function WorkspaceHeader({ projectName }: WorkspaceHeaderProps) {
+export function WorkspaceHeader({ projectName, users, currentUserId }: WorkspaceHeaderProps) {
     const [copied, setCopied] = useState(false)
 
     async function handleShare() {
@@ -28,17 +32,21 @@ export function WorkspaceHeader({ projectName }: WorkspaceHeaderProps) {
                 <span className="text-sm font-medium text-heading">{projectName}</span>
             </div>
 
-            <button
-                onClick={handleShare}
-                className="flex items-center gap-1.5 rounded-lg border border-border-strong px-3 py-1.5 text-xs text-muted hover:text-heading"
-            >
-                {copied ? (
-                    <LuCheck className="size-3.5 text-success" />
-                ) : (
-                    <LuLink className="size-3.5" />
-                )}
-                {copied ? 'Copied' : 'Share'}
-            </button>
+            <div className="flex items-center gap-5">
+                <PresenceBar users={users} currentUserId={currentUserId} />
+
+                <button
+                    onClick={handleShare}
+                    className="flex items-center gap-1.5 rounded-lg border border-border-strong px-3 py-1.5 text-xs text-muted hover:text-heading"
+                >
+                    {copied ? (
+                        <LuCheck className="size-3.5 text-success" />
+                    ) : (
+                        <LuLink className="size-3.5" />
+                    )}
+                    {copied ? 'Copied' : 'Share'}
+                </button>
+            </div>
         </header>
     )
 }

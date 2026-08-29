@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Editor from '@monaco-editor/react'
 import type { editor } from 'monaco-editor'
 import * as Y from 'yjs'
+import type { Awareness } from 'y-protocols/awareness'
 import { MonacoBinding } from 'y-monaco'
 import { Spinner } from '@/components/ui/Spinner'
 import type { SupportedLanguage } from '@/types'
@@ -10,9 +11,10 @@ type CodeEditorProps = {
     language: SupportedLanguage
     doc: Y.Doc | null
     synced: boolean
+    awareness: Awareness | null
 }
 
-export function CodeEditor({ language, doc, synced }: CodeEditorProps) {
+export function CodeEditor({ language, doc, synced, awareness }: CodeEditorProps) {
     const [instance, setInstance] = useState<editor.IStandaloneCodeEditor | null>(null)
 
     useEffect(() => {
@@ -20,12 +22,17 @@ export function CodeEditor({ language, doc, synced }: CodeEditorProps) {
 
         if (!instance || !model || !doc || !synced) return
 
-        const binding = new MonacoBinding(doc.getText('content'), model, new Set([instance]))
+        const binding = new MonacoBinding(
+            doc.getText('content'),
+            model,
+            new Set([instance]),
+            awareness,
+        )
 
         return () => {
             binding.destroy()
         }
-    }, [instance, doc, synced])
+    }, [instance, doc, synced, awareness])
 
     return (
         <Editor

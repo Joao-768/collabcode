@@ -38,3 +38,9 @@ export type FileContent = {
     content: string
     projectId: string
 }
+
+export type PresenceUser = {
+    userId: string
+    name: string
+    color: string
+}
