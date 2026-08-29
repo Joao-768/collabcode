@@ -9,6 +9,14 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
+            // y-monaco imports the pre-0.53 deep path, which monaco-editor's
+            // `exports` map no longer resolves. Point it at the real file.
+            'monaco-editor/esm/vs/editor/editor.api.js': fileURLToPath(
+                new URL(
+                    '../node_modules/monaco-editor/esm/vs/editor/editor.api.js',
+                    import.meta.url,
+                ),
+            ),
         },
     },
 })

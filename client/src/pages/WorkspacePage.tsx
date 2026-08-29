@@ -8,6 +8,8 @@ import { CodeEditor } from '@/components/workspace/CodeEditor'
 import { WorkspaceHeader } from '@/components/workspace/WorkspaceHeader'
 import { Spinner } from '@/components/ui/Spinner'
 import type { Project, ProjectFile, FileContent, SupportedLanguage } from '@/types'
+import { useSocket } from '@/hooks/useSocket'
+import { useYDoc } from '@/hooks/useYDoc'
 
 export function WorkspacePage() {
     const { id: projectId } = useParams<{ id: string }>()
@@ -17,6 +19,8 @@ export function WorkspacePage() {
     const [activeFile, setActiveFile] = useState<FileContent | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const { socket } = useSocket(projectId)
+    const { doc, synced } = useYDoc(socket, activeFile?.id ?? null)
 
     useEffect(() => {
         if (!projectId) return
@@ -160,15 +164,7 @@ export function WorkspacePage() {
 
                 <main className="min-w-0 flex-1">
                     {activeFile ? (
-                        <CodeEditor
-                            language={activeFile.language}
-                            value={activeFile.content}
-                            onChange={(value) =>
-                                setActiveFile((current) =>
-                                    current ? { ...current, content: value } : current,
-                                )
-                            }
-                        />
+                        <CodeEditor language={activeFile.language} doc={doc} synced={synced} />
                     ) : (
                         <div className="grid h-full place-items-center text-center">
                             <div>
