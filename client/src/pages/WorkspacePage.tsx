@@ -109,11 +109,11 @@ export function WorkspacePage() {
         if (!socket) return
 
         function handleCreated({ file }: { file: ProjectFile }) {
-            setFiles((list) =>
-                list.some((f) => f.id === file.id)
-                    ? list
-                    : [...list, file].sort((a, b) => a.name.localeCompare(b.name)),
-            )
+            setFiles((list) => {
+                if (list.some((f) => f.id === file.id)) return list
+
+                return [...list, file].sort((a, b) => a.name.localeCompare(b.name))
+            })
         }
 
         function handleRenamed({ file }: { file: ProjectFile }) {
@@ -157,8 +157,9 @@ export function WorkspacePage() {
             if (!projectId) return
 
             try {
+                // The file:created event adds it to the tree for everyone,
+                // including us, so we only need to open it here.
                 const { file } = await fileService.createFile(projectId, name, language)
-                setFiles((list) => [...list, file].sort((a, b) => a.name.localeCompare(b.name)))
                 await handleSelect(file.id)
                 setError(null)
             } catch (err) {
@@ -170,15 +171,7 @@ export function WorkspacePage() {
 
     const handleRename = useCallback(async (fileId: string, name: string) => {
         try {
-            const { file } = await fileService.renameFile(fileId, name)
-            setFiles((list) =>
-                list
-                    .map((f) => (f.id === fileId ? file : f))
-                    .sort((a, b) => a.name.localeCompare(b.name)),
-            )
-            setActiveFile((current) =>
-                current && current.id === fileId ? { ...current, name: file.name } : current,
-            )
+            await fileService.renameFile(fileId, name)
             setError(null)
         } catch (err) {
             setError(err instanceof ApiError ? err.message : 'Could not rename that file')
@@ -188,8 +181,6 @@ export function WorkspacePage() {
     const handleDelete = useCallback(async (fileId: string) => {
         try {
             await fileService.deleteFile(fileId)
-            setFiles((list) => list.filter((f) => f.id !== fileId))
-            setActiveFile((current) => (current && current.id === fileId ? null : current))
             setError(null)
         } catch (err) {
             setError(err instanceof ApiError ? err.message : 'Could not delete that file')
