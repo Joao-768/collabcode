@@ -2,6 +2,7 @@ import type { ErrorRequestHandler, RequestHandler } from 'express'
 import { AuthError } from '../services/auth.service.js'
 import { env } from '../lib/env.js'
 import { ProjectError } from '../services/project.service.js'
+import { FileError } from '../services/file.service.js'
 
 export const notFound: RequestHandler = (_req, res) => {
     res.status(404).json({ error: 'Not found' })
@@ -14,6 +15,11 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     }
 
     if (err instanceof ProjectError) {
+        res.status(err.status).json({ error: err.message })
+        return
+    }
+
+    if (err instanceof FileError) {
         res.status(err.status).json({ error: err.message })
         return
     }

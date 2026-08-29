@@ -2,6 +2,7 @@ import { Router } from 'express'
 import * as projectController from '../controllers/project.controller.js'
 import { validateBody } from '../middleware/validate.middleware.js'
 import { requireAuth } from '../middleware/auth.middleware.js'
+import * as fileController from '../controllers/file.controller.js'
 
 export const projectRoutes = Router()
 
@@ -16,3 +17,9 @@ projectRoutes.post(
 projectRoutes.get('/:id', projectController.get)
 projectRoutes.post('/:id/join', projectController.join)
 projectRoutes.delete('/:id', projectController.remove)
+projectRoutes.get('/:id/files', fileController.list)
+projectRoutes.post(
+    '/:id/files',
+    validateBody(fileController.createFileSchema),
+    fileController.create,
+)
