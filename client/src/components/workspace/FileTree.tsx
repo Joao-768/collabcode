@@ -7,6 +7,7 @@ import type { ProjectFile, SupportedLanguage } from '@/types'
 type FileTreeProps = {
     files: ProjectFile[]
     activeFileId: string | null
+    canDelete: boolean
     onSelect: (fileId: string) => void
     onCreate: (name: string, language: SupportedLanguage) => Promise<void>
     onRename: (fileId: string, name: string) => Promise<void>
@@ -16,6 +17,7 @@ type FileTreeProps = {
 export function FileTree({
     files,
     activeFileId,
+    canDelete,
     onSelect,
     onCreate,
     onRename,
@@ -128,13 +130,15 @@ export function FileTree({
                                     >
                                         <LuPencil className="size-3" />
                                     </button>
-                                    <button
-                                        onClick={() => void onDelete(file.id)}
-                                        aria-label={`Delete ${file.name}`}
-                                        className="rounded p-0.5 text-dim hover:text-red-400"
-                                    >
-                                        <LuTrash2 className="size-3" />
-                                    </button>
+                                    {canDelete && (
+                                        <button
+                                            onClick={() => void onDelete(file.id)}
+                                            aria-label={`Delete ${file.name}`}
+                                            className="rounded p-0.5 text-dim hover:text-red-400"
+                                        >
+                                            <LuTrash2 className="size-3" />
+                                        </button>
+                                    )}
                                 </span>
                             </div>
                         )}

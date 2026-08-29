@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma.js'
+import { requireOwnership } from '../middleware/permission.middleware.js'
 
 export class FileError extends Error {
     constructor(
@@ -96,6 +97,11 @@ export async function renameFile(fileId: string, userId: string, name: string) {
 
 export async function deleteFile(fileId: string, userId: string) {
     const file = await getFile(fileId, userId)
+
+    // Per the permission model, collaborators may create and edit files but
+    // only the owner may remove them.
+    await requireOwnership(file.projectId, userId)
+
     await prisma.file.delete({ where: { id: file.id } })
     return { projectId: file.projectId }
 }

@@ -4,6 +4,7 @@ import { env } from '../lib/env.js'
 import { ProjectError } from '../services/project.service.js'
 import { FileError } from '../services/file.service.js'
 import { MessageError } from '../services/message.service.js'
+import { PermissionError } from './permission.middleware.js'
 
 export const notFound: RequestHandler = (_req, res) => {
     res.status(404).json({ error: 'Not found' })
@@ -26,6 +27,11 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     }
 
     if (err instanceof MessageError) {
+        res.status(err.status).json({ error: err.message })
+        return
+    }
+
+    if (err instanceof PermissionError) {
         res.status(err.status).json({ error: err.message })
         return
     }

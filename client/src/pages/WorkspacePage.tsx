@@ -28,7 +28,7 @@ export function WorkspacePage() {
     const [activeFile, setActiveFile] = useState<FileContent | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const { socket } = useSocket(projectId)
+    const { socket, connected, socketError } = useSocket(projectId)
     const { doc, synced } = useYDoc(socket, activeFile?.id ?? null)
     const presentUsers = usePresence(socket)
     const myColor = presentUsers.find((u) => u.userId === currentUser?.id)?.color
@@ -44,6 +44,7 @@ export function WorkspacePage() {
     const [consoleLines, setConsoleLines] = useState<ConsoleLine[]>([])
     const [running, setRunning] = useState(false)
     const canRun = activeFile?.language === 'javascript'
+    const isOwner = project?.ownerId === currentUser?.id
 
     const handleRun = useCallback(async () => {
         if (!doc || !canRun) return
@@ -196,9 +197,15 @@ export function WorkspacePage() {
                 onRun={() => void handleRun()}
             />
 
-            {error && (
+            {(error ?? socketError) && (
                 <p className="m-0 border-b border-red-900/60 bg-red-950/40 px-4 py-2 text-xs text-red-300">
-                    {error}
+                    {error ?? socketError}
+                </p>
+            )}
+
+            {!connected && !socketError && (
+                <p className="m-0 border-b border-amber-900/60 bg-amber-950/30 px-4 py-2 text-xs text-amber-300">
+                    Connecting…
                 </p>
             )}
 
@@ -206,6 +213,7 @@ export function WorkspacePage() {
                 <FileTree
                     files={files}
                     activeFileId={activeFile?.id ?? null}
+                    canDelete={isOwner}
                     onSelect={handleSelect}
                     onCreate={handleCreate}
                     onRename={handleRename}

@@ -5,6 +5,7 @@ import { getSocket, SOCKET_EVENTS } from '@/services/socket'
 export function useSocket(projectId: string | undefined) {
     const [socket, setSocket] = useState<Socket | null>(null)
     const [connected, setConnected] = useState(false)
+    const [socketError, setSocketError] = useState<string | null>(null)
 
     useEffect(() => {
         if (!projectId) return
@@ -14,14 +15,25 @@ export function useSocket(projectId: string | undefined) {
         function handleConnect() {
             instance.emit(SOCKET_EVENTS.ROOM_JOIN, { projectId })
             setConnected(true)
+            setSocketError(null)
         }
 
         function handleDisconnect() {
             setConnected(false)
         }
 
+        function handleRoomError({ error }: { error: string }) {
+            setSocketError(error)
+        }
+
+        function handleConnectError() {
+            setSocketError('Lost connection to the server. Retrying…')
+        }
+
         instance.on('connect', handleConnect)
         instance.on('disconnect', handleDisconnect)
+        instance.on(SOCKET_EVENTS.ROOM_ERROR, handleRoomError)
+        instance.on('connect_error', handleConnectError)
 
         if (instance.connected) {
             handleConnect()
@@ -34,8 +46,10 @@ export function useSocket(projectId: string | undefined) {
         return () => {
             instance.off('connect', handleConnect)
             instance.off('disconnect', handleDisconnect)
+            instance.off(SOCKET_EVENTS.ROOM_ERROR, handleRoomError)
+            instance.off('connect_error', handleConnectError)
         }
     }, [projectId])
 
-    return { socket, connected }
+    return { socket, connected, socketError }
 }
