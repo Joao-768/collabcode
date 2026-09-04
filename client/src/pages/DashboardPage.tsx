@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { LuPlus, LuTrash2, LuFolderCode, LuLogOut } from 'react-icons/lu'
+import { LuPlus, LuTrash2, LuArrowUpRight, LuLogOut } from 'react-icons/lu'
 import { useAuthStore } from '@/stores/auth.store'
 import * as projectService from '@/services/project.service'
 import { ApiError } from '@/services/api'
 import { Spinner } from '@/components/ui/Spinner'
+import { Wordmark } from '@/components/Wordmark'
 import type { Project } from '@/types'
 
 export function DashboardPage() {
@@ -81,21 +82,14 @@ export function DashboardPage() {
     return (
         <div className="min-h-svh bg-canvas text-heading">
             <header className="border-b border-border">
-                <div className="mx-auto flex max-w-240 items-center justify-between px-8 py-4">
-                    <Link to="/" className="flex items-center gap-2.5">
-                        <span className="flex size-7 items-center justify-center gap-0.75 rounded-[7px] border border-border-strong bg-surface-raised">
-                            <span className="size-1 rounded-full bg-accent" />
-                            <span className="size-1 rounded-full bg-[#3b6fef]" />
-                            <span className="size-1 rounded-full bg-[#5b84f2]" />
-                        </span>
-                        <span className="text-[15px] font-semibold tracking-tight">CollabCode</span>
-                    </Link>
+                <div className="mx-auto flex max-w-5xl items-center justify-between px-8 py-4.5">
+                    <Wordmark />
 
-                    <div className="flex items-center gap-4 text-sm">
-                        <span className="text-muted">{user?.name}</span>
+                    <div className="flex items-center gap-5">
+                        <span className="label hidden text-dim sm:inline">{user?.name}</span>
                         <button
                             onClick={handleSignOut}
-                            className="flex items-center gap-1.5 rounded-lg border border-border-strong px-3 py-1.5 text-muted hover:text-heading"
+                            className="label flex items-center gap-2 text-muted transition-colors hover:text-cream"
                         >
                             <LuLogOut className="size-3.5" />
                             Log out
@@ -104,78 +98,85 @@ export function DashboardPage() {
                 </div>
             </header>
 
-            <main className="mx-auto max-w-240 px-8 py-10">
-                <h1 className="m-0 text-2xl font-semibold tracking-tight">Your projects</h1>
-                <p className="mt-1.5 mb-7 text-sm text-muted">
+            <main className="mx-auto max-w-5xl px-8 py-16">
+                <h1 className="display m-0 text-[clamp(2.25rem,5vw,3.5rem)] text-heading">
+                    Your projects
+                </h1>
+                <p className="mt-4 mb-10 max-w-md text-[15px] leading-[1.6] text-muted">
                     Create a room, share the link, and start coding together.
                 </p>
 
-                <form onSubmit={handleCreate} className="mb-8 flex gap-2.5">
+                <form onSubmit={handleCreate} className="mb-10 flex flex-wrap gap-3">
                     <input
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="New project name"
                         maxLength={80}
-                        className="flex-1 rounded-[9px] border border-border-strong bg-surface px-3.5 py-2.5 text-sm text-heading outline-none placeholder:text-dim focus:border-accent"
+                        className="field min-w-60 flex-1"
                     />
                     <button
                         type="submit"
                         disabled={creating || !name.trim()}
-                        className="flex items-center gap-2 rounded-[9px] bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50"
+                        className="pill-solid"
                     >
                         {creating ? (
-                            <Spinner className="size-4 border-white/40 border-t-white" />
+                            <Spinner className="size-3.5 border-canvas/30 border-t-canvas" />
                         ) : (
-                            <LuPlus className="size-4" />
+                            <LuPlus className="size-3.5" />
                         )}
                         Create
                     </button>
                 </form>
 
                 {error && (
-                    <p className="mb-5 rounded-[9px] border border-red-900/60 bg-red-950/40 px-3.5 py-2.5 text-sm text-red-300">
+                    <p className="mb-6 rounded-lg border border-red-900/50 bg-red-950/30 px-3.5 py-2.5 text-sm text-red-300">
                         {error}
                     </p>
                 )}
 
                 {loading ? (
-                    <div className="grid place-items-center py-20">
+                    <div className="grid place-items-center py-24">
                         <Spinner className="size-6" />
                     </div>
                 ) : projects.length === 0 ? (
-                    <div className="grid place-items-center rounded-[14px] border border-dashed border-border-strong py-20 text-center">
-                        <LuFolderCode className="size-8 text-dim" />
-                        <p className="mt-3 mb-1 text-sm font-medium text-heading">
-                            No projects yet
-                        </p>
-                        <p className="m-0 text-sm text-muted">
+                    <div className="border-t border-border py-24 text-center">
+                        <p className="m-0 font-serif text-2xl text-heading">No projects yet</p>
+                        <p className="mt-2 m-0 text-sm text-muted">
                             Create your first room using the field above.
                         </p>
                     </div>
                 ) : (
-                    <ul className="m-0 grid list-none gap-3 p-0">
+                    <ul className="m-0 grid list-none grid-cols-1 gap-px border-y border-border bg-border p-0">
                         {projects.map((project) => (
                             <li
                                 key={project.id}
-                                className="flex items-center justify-between rounded-[12px] border border-border-strong bg-surface px-5 py-4 hover:border-[#3a3a3a]"
+                                className="group flex items-center justify-between gap-4 bg-canvas px-1 py-5 transition-colors hover:bg-surface"
                             >
-                                <Link to={`/workspace/${project.id}`} className="flex-1">
-                                    <p className="m-0 text-[15px] font-medium text-heading">
-                                        {project.name}
-                                    </p>
-                                    <p className="mt-1 m-0 font-mono text-xs text-dim">
-                                        {project._count?.files ?? 0} files ·{' '}
-                                        {project._count?.members ?? 1} members ·{' '}
-                                        {project.ownerId === user?.id ? 'Owner' : 'Collaborator'}
-                                    </p>
+                                <Link
+                                    to={`/workspace/${project.id}`}
+                                    className="flex min-w-0 flex-1 items-center gap-4 px-4"
+                                >
+                                    <div className="min-w-0 flex-1">
+                                        <p className="m-0 truncate font-serif text-xl text-heading">
+                                            {project.name}
+                                        </p>
+                                        <p className="mt-1.5 m-0 font-mono text-[11.5px] text-dim">
+                                            {project._count?.files ?? 0} files ·{' '}
+                                            {project._count?.members ?? 1} members ·{' '}
+                                            {project.ownerId === user?.id
+                                                ? 'Owner'
+                                                : 'Collaborator'}
+                                        </p>
+                                    </div>
+                                    <LuArrowUpRight className="size-4 shrink-0 text-faint transition-colors group-hover:text-cream" />
                                 </Link>
 
                                 {project.ownerId === user?.id && (
                                     <button
                                         onClick={() => handleDelete(project.id)}
                                         aria-label={`Delete ${project.name}`}
-                                        className="rounded-lg border border-border-strong p-2 text-dim hover:border-red-900 hover:text-red-400"
+                                        className="mr-4 rounded-lg p-2 text-faint transition-colors hover:text-red-400"
                                     >
                                         <LuTrash2 className="size-4" />
                                     </button>

@@ -1,48 +1,51 @@
 import { Link } from 'react-router-dom'
+import { Wordmark } from '@/components/Wordmark'
 
 type NavbarProps = {
     githubUrl?: string
 }
 
+const links = [
+    { label: 'Workspace', href: '#workspace' },
+    { label: 'Features', href: '#features' },
+    { label: 'How it works', href: '#how' },
+]
+
 export function Navbar({ githubUrl = 'https://github.com' }: NavbarProps) {
     return (
-        <header className="sticky top-0 z-40 border-b border-border bg-canvas/82 backdrop-blur-md">
-            <nav className="mx-auto flex max-w-295 items-center gap-8 px-8 py-4">
-                <Link to="/" className="flex items-center gap-2.5">
-                    <span className="flex size-7 items-center justify-center gap-0.75 rounded-[7px] border border-border-strong bg-surface-raised">
-                        <span className="size-1 rounded-full bg-accent" />
-                        <span className="size-1 rounded-full bg-[#3b6fef]" />
-                        <span className="size-1 rounded-full bg-[#5b84f2]" />
-                    </span>
-                    <span className="text-[15px] font-semibold tracking-tight text-heading">
-                        CollabCode
-                    </span>
-                </Link>
+        <header className="fixed inset-x-0 top-0 z-40 h-(--header-h) border-b border-border/80 bg-canvas/85 backdrop-blur-md">
+            <nav className="mx-auto flex h-full max-w-7xl items-center gap-10 px-8">
+                <Wordmark />
 
-                <div className="flex flex-1 items-center gap-6.5 text-sm text-muted">
-                    <a href="#features" className="hover:text-heading">
-                        Features
-                    </a>
-                    <a href="#how" className="hover:text-heading">
-                        How it works
-                    </a>
-                    <a href={githubUrl} className="hover:text-heading">
+                <div className="label hidden flex-1 items-center justify-center gap-9 text-muted md:flex">
+                    {links.map((link) => (
+                        <a
+                            key={link.href}
+                            href={link.href}
+                            className="transition-colors hover:text-cream"
+                        >
+                            {link.label}
+                        </a>
+                    ))}
+                    <a
+                        href={githubUrl}
+                        className="transition-colors hover:text-cream"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
                         GitHub
                     </a>
                 </div>
 
-                <div className="flex items-center gap-2.5">
+                <div className="ml-auto flex items-center gap-5 md:ml-0">
                     <Link
                         to="/login"
-                        className="rounded-lg px-3 py-2 text-sm text-muted hover:bg-surface-raised hover:text-heading"
+                        className="label text-muted transition-colors hover:text-cream"
                     >
-                        Login
+                        Log in
                     </Link>
-                    <Link
-                        to="/login"
-                        className="rounded-lg bg-accent px-3.75 py-2.5 text-sm font-medium text-white hover:bg-accent-hover"
-                    >
-                        Get Started
+                    <Link to="/register" className="pill-solid">
+                        Get started
                     </Link>
                 </div>
             </nav>

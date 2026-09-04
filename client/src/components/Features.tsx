@@ -3,32 +3,32 @@ import type { IconType } from 'react-icons'
 
 const features: { title: string; description: string; icon: IconType }[] = [
     {
-        title: 'Real-time Editing',
+        title: 'Real-time editing',
         description: 'CRDT-backed keystrokes land in every session in under 20ms.',
         icon: LuZap,
     },
     {
-        title: 'File Explorer',
+        title: 'File explorer',
         description: 'A shared tree: create, rename and move without stepping on anyone.',
         icon: LuFolderTree,
     },
     {
-        title: 'Team Chat',
+        title: 'Team chat',
         description: "Threads pinned to the line they're about, not lost in another app.",
         icon: LuMessageSquare,
     },
     {
-        title: 'Live Presence',
+        title: 'Live presence',
         description: 'See every cursor, selection and open file as it happens.',
         icon: LuUsers,
     },
     {
-        title: 'Instant Preview',
+        title: 'Instant preview',
         description: 'Hot-reloaded output beside the code, shared by URL.',
         icon: LuEye,
     },
     {
-        title: 'Version History',
+        title: 'Version history',
         description: "Scrub the room's timeline and restore any point in the session.",
         icon: LuHistory,
     },
@@ -36,39 +36,41 @@ const features: { title: string; description: string; icon: IconType }[] = [
 
 export function Features() {
     return (
-        <section id="features" className="px-8 py-26">
-            <div className="mx-auto max-w-295">
-                <div className="mb-13 flex max-w-140 flex-col gap-3">
-                    <span className="font-mono text-[11px] tracking-[0.12em] text-accent">
-                        FEATURES
-                    </span>
-                    <h2 className="m-0 text-[38px] leading-[1.12] font-semibold tracking-[-0.025em]">
+        <section id="features" className="screen">
+            <div className="mx-auto w-full max-w-7xl">
+                <div className="flex flex-col gap-4 border-b border-border pb-[clamp(1.5rem,4vh,3.5rem)]">
+                    <span className="label text-dim">Features</span>
+                    <h2 className="display m-0 max-w-3xl text-[clamp(2.25rem,4.5vw,3.5rem)] text-heading">
                         Everything a room needs
                     </h2>
-                    <p className="m-0 text-base leading-[1.55] text-muted">
+                    {/* Em ecras baixos o subtitulo e o primeiro a ceder: sem ele
+                        as duas linhas de cartoes ainda cabem no viewport. */}
+                    <p className="m-0 max-w-xl text-[17px] leading-[1.6] text-muted [@media(height<860px)]:hidden">
                         Six primitives, one socket. The parts that make working in the same file
                         feel normal.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                {/* Grelha com fios em vez de cartoes: menos caixas, mais pagina.
+                    As divisorias vivem no container (gap + fundo) para nao ter
+                    de acertar :nth-child a cada breakpoint. */}
+                <div className="grid grid-cols-1 gap-px border-b border-border bg-border md:grid-cols-2 lg:grid-cols-3">
                     {features.map(({ icon: Icon, ...feature }) => (
-                        <div
+                        <article
                             key={feature.title}
-                            className="flex flex-col gap-3.5 rounded-xl border border-border bg-surface p-6 hover:border-border-strong hover:bg-surface-raised"
+                            className="group flex flex-col gap-[clamp(0.5rem,1.5vh,1rem)] bg-canvas py-[clamp(1.25rem,3.5vh,2.5rem)] md:px-8"
                         >
-                            <div className="flex size-10 items-center justify-center rounded-[10px] border border-border-strong bg-border">
-                                <Icon className="size-4.5 text-accent" aria-hidden="true" />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <h3 className="m-0 text-base font-semibold tracking-[-0.01em]">
-                                    {feature.title}
-                                </h3>
-                                <p className="m-0 text-sm leading-[1.5] text-muted">
-                                    {feature.description}
-                                </p>
-                            </div>
-                        </div>
+                            <Icon
+                                className="size-5 text-dim transition-colors group-hover:text-cream"
+                                aria-hidden="true"
+                            />
+                            <h3 className="m-0 font-serif text-2xl leading-tight text-heading">
+                                {feature.title}
+                            </h3>
+                            <p className="m-0 text-[15px] leading-[1.6] text-muted">
+                                {feature.description}
+                            </p>
+                        </article>
                     ))}
                 </div>
             </div>

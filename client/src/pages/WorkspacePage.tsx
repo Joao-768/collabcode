@@ -43,6 +43,7 @@ export function WorkspacePage() {
     const { messages, loading: chatLoading, send: sendMessage } = useChat(socket, projectId)
 
     const [consoleLines, setConsoleLines] = useState<ConsoleLine[]>([])
+    const [consoleInput, setConsoleInput] = useState('')
     const [running, setRunning] = useState(false)
     const canRun = activeFile?.language === 'javascript'
     const isOwner = project?.ownerId === currentUser?.id
@@ -52,7 +53,11 @@ export function WorkspacePage() {
 
         setRunning(true)
         const code = doc.getText('content').toString()
-        const result = await runJavaScript(code)
+        const inputs = consoleInput
+            .split(',')
+            .map((value) => value.trim())
+            .filter(Boolean)
+        const result = await runJavaScript(code, inputs)
 
         setConsoleLines([
             ...result.lines.map((line, index) => ({ ...line, id: `${Date.now()}-${index}` })),
@@ -65,7 +70,7 @@ export function WorkspacePage() {
             },
         ])
         setRunning(false)
-    }, [doc, canRun])
+    }, [doc, canRun, consoleInput])
 
     useEffect(() => {
         if (!projectId) return
@@ -198,12 +203,12 @@ export function WorkspacePage() {
     if (error && !project) {
         return (
             <div className="grid min-h-svh place-items-center bg-canvas px-8 text-center">
-                <div>
-                    <p className="m-0 text-sm font-medium text-heading">{error}</p>
-                    <Link
-                        to="/dashboard"
-                        className="mt-4 inline-block text-sm text-accent hover:text-accent-hover"
-                    >
+                <div className="max-w-md">
+                    <p className="label m-0 text-dim">Workspace</p>
+                    <h1 className="display mt-4 mb-0 text-[clamp(1.75rem,4vw,2.5rem)] text-heading">
+                        {error}
+                    </h1>
+                    <Link to="/dashboard" className="pill-outline mt-8">
                         Back to dashboard
                     </Link>
                 </div>
@@ -213,10 +218,8 @@ export function WorkspacePage() {
 
     return (
         <div className="flex h-svh flex-col bg-canvas text-heading">
-            <div className="grid place-items-center border-b border-border bg-surface px-4 py-2 text-center md:hidden">
-                <p className="m-0 text-xs text-muted">
-                    The workspace is built for desktop screens.
-                </p>
+            <div className="grid place-items-center border-b border-border bg-surface px-4 py-2.5 text-center md:hidden">
+                <p className="label m-0 text-dim">Built for desktop screens</p>
             </div>
 
             <WorkspaceHeader
@@ -229,13 +232,14 @@ export function WorkspacePage() {
             />
 
             {(error ?? socketError) && (
-                <p className="m-0 border-b border-red-900/60 bg-red-950/40 px-4 py-2 text-xs text-red-300">
+                <p className="m-0 border-b border-red-900/50 bg-red-950/30 px-4 py-2.5 font-mono text-[11.5px] text-red-300">
                     {error ?? socketError}
                 </p>
             )}
 
             {!connected && !socketError && (
-                <p className="m-0 border-b border-amber-900/60 bg-amber-950/30 px-4 py-2 text-xs text-amber-300">
+                <p className="m-0 flex items-center gap-2 border-b border-border bg-surface px-4 py-2.5 font-mono text-[11.5px] text-muted">
+                    <span className="size-1.5 animate-pulse rounded-full bg-amber-400" />
                     Connecting…
                 </p>
             )}
@@ -260,11 +264,11 @@ export function WorkspacePage() {
                             awareness={awareness}
                         />
                     ) : (
-                        <div className="grid h-full place-items-center text-center">
+                        <div className="grid h-full place-items-center px-8 text-center">
                             <div>
-                                <p className="m-0 text-sm text-muted">No file open</p>
-                                <p className="mt-1 m-0 font-mono text-xs text-dim">
-                                    Create or select a file to start coding
+                                <p className="m-0 font-serif text-2xl text-heading">No file open</p>
+                                <p className="mt-2 m-0 text-sm text-muted">
+                                    Create or select a file to start coding.
                                 </p>
                             </div>
                         </div>
@@ -279,7 +283,12 @@ export function WorkspacePage() {
                 />
             </div>
 
-            <Console lines={consoleLines} onClear={() => setConsoleLines([])} />
+            <Console
+                lines={consoleLines}
+                onClear={() => setConsoleLines([])}
+                input={consoleInput}
+                onInputChange={setConsoleInput}
+            />
         </div>
     )
 }

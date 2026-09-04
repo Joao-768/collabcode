@@ -1,4 +1,7 @@
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api'
+// In production the API is served from the same origin as the app, so a
+// relative path is correct and needs no build-time configuration.
+const API_URL =
+    import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '/api' : 'http://localhost:4000/api')
 
 export class ApiError extends Error {
     status: number

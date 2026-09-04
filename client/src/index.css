@@ -1,22 +1,38 @@
 @import 'tailwindcss';
 
 /* Tema do CollabCode. No Tailwind v4 o tema define-se em CSS com @theme:
-   cada variavel aqui gera as utilities correspondentes (bg-surface, text-muted, ...). */
+   cada variavel aqui gera as utilities correspondentes (bg-surface, text-muted, ...).
+
+   A paleta e editorial: preto quase puro por baixo, creme por cima. Nao ha azul
+   de interface -- o unico "acento" e o proprio creme, aplicado por contraste
+   (pill solida creme sobre preto). As cores vivas ficam reservadas para sinais
+   funcionais: presenca, cursores, niveis da consola. */
 @theme {
     --color-canvas: #0a0a0a;
-    --color-surface: #111111;
-    --color-surface-raised: #141414;
-    --color-border: #1c1c1c;
-    --color-border-strong: #2a2a2a;
-    --color-muted: #a3a3a3;
-    --color-dim: #6e7681;
-    --color-heading: #f5f5f5;
-    --color-accent: #2563eb;
-    --color-accent-hover: #1d4ed8;
-    --color-success: #34d399;
+    --color-surface: #101010;
+    --color-surface-raised: #161616;
+    --color-border: #1e1e1e;
+    --color-border-strong: #2c2c2c;
+
+    /* Creme em varias intensidades. cream e o texto/fundo forte,
+       muted e o corpo, dim e o secundario, faint e o quase-invisivel. */
+    --color-cream: #ece7dd;
+    --color-heading: #f2eee6;
+    --color-muted: #9d968a;
+    --color-dim: #6b655c;
+    --color-faint: #46423c;
+
+    /* Mantidos so para estados funcionais (presenca, consola, erros). */
+    --color-live: #7ee787;
+    --color-success: #7ee787;
 
     --font-sans: Inter, Helvetica, Arial, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+    --font-serif: 'Instrument Serif', 'Times New Roman', Times, serif;
+    --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+    /* Altura do header fixo. Vive aqui para que as seccoes de ecra inteiro e
+       as ancoras do nav a descontem sem ninguem repetir o valor a mao. */
+    --header-h: 72px;
 }
 
 @layer base {
@@ -25,10 +41,74 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
+        /* Sem isto, clicar numa ancora do nav esconde o topo da seccao
+           debaixo do header fixo. */
+        scroll-behavior: smooth;
     }
 
     body {
         @apply bg-canvas text-muted font-sans;
+    }
+
+    /* Seleccao a condizer com a paleta em vez do azul do sistema. */
+    ::selection {
+        background: var(--color-cream);
+        color: var(--color-canvas);
+    }
+}
+
+@layer components {
+    /* Uma seccao que ocupa exactamente um ecra, ja descontando o header fixo.
+       O conteudo fica centrado na vertical; o padding encolhe em ecras baixos
+       para o conteudo nao crescer para la do viewport e "vazar" para a
+       seccao seguinte. */
+    .screen {
+        @apply flex flex-col justify-center px-8;
+        min-height: calc(100svh - var(--header-h));
+        padding-block: clamp(2.5rem, 7vh, 5rem);
+        scroll-margin-top: var(--header-h);
+    }
+
+    /* Titulo editorial: serif de display, tracking apertado e um leading
+       curto para as duas linhas ficarem coladas como na referencia. */
+    .display {
+        @apply font-serif font-normal tracking-[-0.02em];
+        line-height: 0.98;
+    }
+
+    /* Label em mono maiusculo -- o tique visual que se repete no nav,
+       nos eyebrows das seccoes e nos cabecalhos de painel. */
+    .label {
+        @apply font-mono text-[11px] tracking-[0.14em] uppercase;
+    }
+
+    /* Botao pill creme (primario) e a sua versao outline (secundario).
+       No Tailwind v4 o @apply nao resolve classes de componente, por isso
+       a base repete-se em vez de ser referenciada. */
+    .pill,
+    .pill-solid,
+    .pill-outline {
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.75;
+        @apply font-mono text-[13px] tracking-[0.06em] uppercase;
+        @apply transition-colors duration-150;
+    }
+
+    /* Desactivada continua creme, apenas mais apagada: baixar so a opacidade
+       sobre preto tornava-a num cinzento morto que nao lia como botao. */
+    .pill-solid {
+        @apply bg-cream text-canvas hover:bg-white;
+        @apply disabled:bg-cream/45 disabled:text-canvas/70 disabled:hover:bg-cream/45;
+    }
+
+    .pill-outline {
+        @apply border border-border-strong text-cream hover:border-cream/60 hover:bg-white/5;
+    }
+
+    /* Campo de formulario. Foco marcado a creme, nao a azul. */
+    .field {
+        @apply w-full rounded-lg border border-border-strong bg-surface px-3.5 py-2.5;
+        @apply text-sm text-heading outline-none transition-colors duration-150;
+        @apply placeholder:text-faint focus:border-cream/50;
     }
 }
 

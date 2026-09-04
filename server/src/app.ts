@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs'
+import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
@@ -10,7 +13,24 @@ import { notFound, errorHandler } from './middleware/error.middleware.js'
 export const app = express()
 
 // Security headers, and drop the X-Powered-By fingerprint.
-app.use(helmet())
+app.use(
+    helmet({
+        contentSecurityPolicy: {
+            useDefaults: true,
+            directives: {
+                // The Run button executes user code in a Worker built from a
+                // blob URL; without this the default-src 'self' policy blocks it.
+                'worker-src': ["'self'", 'blob:'],
+                'child-src': ["'self'", 'blob:'],
+                // Monaco injects its editor styles and loads its own fonts.
+                'style-src': ["'self'", "'unsafe-inline'"],
+                'font-src': ["'self'", 'data:'],
+                // Same-origin websockets for the collaborative session.
+                'connect-src': ["'self'", 'ws:', 'wss:'],
+            },
+        },
+    }),
+)
 app.disable('x-powered-by')
 
 app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }))
@@ -35,5 +55,20 @@ app.use('/api/auth/login', authLimiter)
 app.use('/api/auth/register', authLimiter)
 
 app.use('/api', apiRoutes)
+
+// In production the client is built into client/dist and served from here, so
+// the app, the API and the websockets all share one origin (and one cookie).
+const clientDist = resolve(dirname(fileURLToPath(import.meta.url)), '../../client/dist')
+
+if (existsSync(clientDist)) {
+    app.use(express.static(clientDist))
+
+    // Client-side routing: anything that is not an API call or a real file is
+    // handed to index.html so React Router can resolve it.
+    app.get(/^(?!\/api\/).*/, (_req, res) => {
+        res.sendFile(join(clientDist, 'index.html'))
+    })
+}
+
 app.use(notFound)
 app.use(errorHandler)

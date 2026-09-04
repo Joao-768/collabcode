@@ -1,44 +1,60 @@
+import { Link } from 'react-router-dom'
+import { LuArrowRight } from 'react-icons/lu'
+
 type HeroProps = {
     githubUrl?: string
-    showCursors?: boolean
 }
 
-export function Hero({ githubUrl = 'https://github.com', showCursors = true }: HeroProps) {
+export function Hero({ githubUrl = 'https://github.com' }: HeroProps) {
     return (
-        <section id="top" className="relative px-8 pt-26 pb-10">
-            <div
-                className="pointer-events-none absolute inset-0 mask-[radial-gradient(ellipse_70%_60%_at_50%_0%,#000_25%,transparent_75%)] bg-[linear-gradient(#141414_1px,transparent_1px),linear-gradient(90deg,#141414_1px,transparent_1px)] bg-size-[64px_64px]"
-                aria-hidden="true"
-            />
-
-            <div className="relative mx-auto flex max-w-295 flex-col items-center gap-5.5 text-center">
-                <h1 className="m-0 max-w-205 text-[72px] leading-[1.02] font-semibold tracking-[-0.035em] text-balance">
+        // justify-end assenta o conteudo na base do ecra: o espaco que sobra
+        // acumula-se todo em cima, como na referencia.
+        <section id="top" className="screen relative justify-end pb-[clamp(3rem,10vh,7rem)]">
+            <div className="relative mx-auto w-full max-w-7xl">
+                {/* Alinhado a esquerda, como a referencia -- da-lhe um ar
+                    editorial que o centrado nao tem. */}
+                <h1 className="display m-0 max-w-4xl text-[clamp(3rem,7.5vw,6.25rem)] text-heading">
                     Code together.
                     <br />
-                    <span className="text-muted">Ship faster.</span>
+                    Ship faster.
                 </h1>
 
-                <p className="m-0 max-w-140 text-lg leading-[1.55] text-muted text-pretty">
+                <p className="mt-8 mb-0 max-w-2xl text-[17px] leading-[1.6] text-muted">
                     A collaborative editor where your whole team edits the same files, in the same
-                    room, at the same time. No merging, no refreshing.
+                    room, at the same time.{' '}
+                    <span className="text-dim">
+                        No merging, no refreshing, no "can you push that first?"
+                    </span>
                 </p>
 
-                <div className="mt-1.5 flex items-center gap-3">
-                    <a
-                        href="#top"
-                        className="rounded-[9px] bg-accent px-5 py-3 text-[15px] font-medium text-white hover:bg-accent-hover"
-                    >
-                        Get Started
+                <div className="mt-10 flex flex-wrap items-center gap-3">
+                    <Link to="/register" className="pill-solid">
+                        Try for free
+                        <LuArrowRight className="size-3.5" aria-hidden="true" />
+                    </Link>
+                    <a href={githubUrl} target="_blank" rel="noreferrer" className="pill-outline">
+                        View source
                     </a>
-                    <a
-                        href={githubUrl}
-                        className="rounded-[9px] border border-border-strong bg-surface px-5 py-3 text-[15px] font-medium text-heading hover:border-[#3a3a3a] hover:bg-border"
-                    >
-                        View on GitHub
-                    </a>
+
+                    <span className="label ml-auto hidden items-center gap-2.5 text-dim lg:flex">
+                        <span className="size-1.5 rounded-full bg-live" aria-hidden="true" />
+                        Open a room in ten seconds
+                    </span>
                 </div>
             </div>
+        </section>
+    )
+}
 
+/** A janela de codigo tem ecra proprio -- juntar-lhe o titulo obrigava a
+ *  encolher os dois ate nenhum respirar. */
+export function HeroPreview({ showCursors = true }: { showCursors?: boolean }) {
+    return (
+        // Padding curto e px-4: a janela cresce para quase todo o ecra.
+        <section
+            id="workspace"
+            className="screen justify-stretch px-4! py-[clamp(1.5rem,4vh,3rem)]"
+        >
             <CodeWindow showCursors={showCursors} />
         </section>
     )
@@ -46,65 +62,85 @@ export function Hero({ githubUrl = 'https://github.com', showCursors = true }: H
 
 function CodeWindow({ showCursors }: { showCursors: boolean }) {
     return (
-        <div className="relative mx-auto mt-16 max-w-270">
-            <div className="overflow-hidden rounded-[14px] border border-border-strong bg-[#0f0f0f] shadow-[0_40px_90px_-30px_rgba(0,0,0,.9),0_0_0_1px_rgba(255,255,255,.02)_inset]">
-                <div className="flex items-center gap-3.5 border-b border-border bg-surface-raised px-3.5 py-2.75">
+        <div className="relative mx-auto flex w-full max-w-[1600px] flex-1 flex-col">
+            <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border-strong bg-[#0d0d0d] shadow-[0_40px_120px_-40px_rgba(0,0,0,.95)]">
+                <div className="flex items-center gap-3.5 border-b border-border bg-surface px-4 py-3">
                     <div className="flex gap-1.5">
-                        <span className="size-2.75 rounded-full bg-[#ff5f57]" />
-                        <span className="size-2.75 rounded-full bg-[#febc2e]" />
-                        <span className="size-2.75 rounded-full bg-[#28c840]" />
+                        <span className="size-2.5 rounded-full bg-faint" />
+                        <span className="size-2.5 rounded-full bg-faint" />
+                        <span className="size-2.5 rounded-full bg-faint" />
                     </div>
-                    <div className="font-mono text-xs text-dim">
-                        collabcode.dev/r/9fa21c<span className="text-[#3a3a3a]"> · main</span>
+                    <div className="font-mono text-[11px] text-dim">
+                        collabcode.dev/r/9fa21c<span className="text-faint"> · main</span>
                     </div>
                     <div className="flex-1" />
                     {showCursors && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2.5">
                             <div className="flex">
-                                <span className="flex size-5.5 items-center justify-center rounded-full border-2 border-surface-raised bg-[#f472b6] text-[10px] font-semibold text-[#1a0a12]">
-                                    M
-                                </span>
-                                <span className="-ml-1.75 flex size-5.5 items-center justify-center rounded-full border-2 border-surface-raised bg-success text-[10px] font-semibold text-[#062015]">
-                                    R
-                                </span>
-                                <span className="-ml-1.75 flex size-5.5 items-center justify-center rounded-full border-2 border-surface-raised bg-[#fb923c] text-[10px] font-semibold text-[#1f1005]">
-                                    A
-                                </span>
+                                <Avatar color="#f472b6" text="#1a0a12" letter="M" />
+                                <Avatar color="#7ee787" text="#062015" letter="R" overlap />
+                                <Avatar color="#fbbf24" text="#1f1005" letter="A" overlap />
                             </div>
-                            <span className="font-mono text-[11px] text-dim">live</span>
+                            <span className="label text-dim">Live</span>
                         </div>
                     )}
                 </div>
 
-                <div className="grid grid-cols-[196px_1fr]">
+                <div className="grid min-h-0 flex-1 grid-cols-[200px_1fr]">
                     <FileExplorer />
                     <CodeBody showCursors={showCursors} />
                 </div>
 
-                <div className="flex items-center gap-4 border-t border-border bg-surface-raised px-3.5 py-2 font-mono text-[11px] text-dim">
-                    <span className="text-accent">● synced</span>
+                <div className="flex items-center gap-4 border-t border-border bg-surface px-4 py-2.5 font-mono text-[11px] text-dim">
+                    <span className="flex items-center gap-1.5 text-live">
+                        <span className="size-1.5 rounded-full bg-live" />
+                        synced
+                    </span>
                     <span>ws://rooms · 3 collaborators</span>
                     <div className="flex-1" />
-                    <span>TypeScript · Ln 11, Col 42</span>
+                    <span className="hidden sm:inline">TypeScript · Ln 11, Col 42</span>
                 </div>
             </div>
         </div>
     )
 }
 
+function Avatar({
+    color,
+    text,
+    letter,
+    overlap = false,
+}: {
+    color: string
+    text: string
+    letter: string
+    overlap?: boolean
+}) {
+    return (
+        <span
+            className={`flex size-5.5 items-center justify-center rounded-full border-2 border-surface font-mono text-[10px] font-medium ${
+                overlap ? '-ml-1.75' : ''
+            }`}
+            style={{ background: color, color: text }}
+        >
+            {letter}
+        </span>
+    )
+}
+
 function FileExplorer() {
     return (
-        <aside className="flex flex-col gap-2.25 border-r border-border bg-[#0d0d0d] px-3 py-3.5 font-mono text-xs text-dim">
-            <div className="pl-1 text-[10px] tracking-[0.08em] text-[#4a4a4a]">EXPLORER</div>
+        <aside className="flex flex-col gap-[clamp(0.35rem,1vh,0.6rem)] border-r border-border bg-[#0b0b0b] px-3 py-[clamp(1rem,2.5vh,2rem)] font-mono text-[11.5px] text-dim">
+            <div className="label pl-1 text-faint">Explorer</div>
             <div className="flex items-center gap-1.75 p-1 text-muted">
-                <span className="size-1.5 rounded-sm border border-[#3a3a3a]" />
+                <span className="size-1.5 rounded-xs border border-faint" />
                 src
             </div>
-            <div className="rounded-md bg-border py-1 pr-1 pl-4.5 text-heading">Editor.tsx</div>
+            <div className="rounded-md bg-border py-1 pr-1 pl-4.5 text-cream">Editor.tsx</div>
             <div className="py-1 pr-1 pl-4.5">room.ts</div>
             <div className="py-1 pr-1 pl-4.5">presence.ts</div>
             <div className="flex items-center gap-1.75 p-1 text-muted">
-                <span className="size-1.5 rounded-sm border border-[#3a3a3a]" />
+                <span className="size-1.5 rounded-xs border border-faint" />
                 server
             </div>
             <div className="py-1 pr-1 pl-4.5">socket.ts</div>
@@ -114,7 +150,7 @@ function FileExplorer() {
 }
 
 function LineNumber({ n }: { n: number }) {
-    return <span className="w-13 pr-4.5 text-right text-[#333]">{n}</span>
+    return <span className="w-13 pr-4.5 text-right text-faint">{n}</span>
 }
 
 function PeerLabel({ color, textColor, name }: { color: string; textColor: string; name: string }) {
@@ -122,10 +158,10 @@ function PeerLabel({ color, textColor, name }: { color: string; textColor: strin
         <span className="ml-px inline-flex items-center gap-1.5 align-middle">
             <span
                 className="h-3.5 w-0.5 animate-[caret_1.1s_steps(1)_infinite]"
-                style={{ background: color, animationDelay: '0s' }}
+                style={{ background: color }}
             />
             <span
-                className="rounded px-1.5 py-0.5 text-[10.5px] font-semibold whitespace-nowrap"
+                className="rounded px-1.5 py-0.5 text-[10.5px] font-medium whitespace-nowrap"
                 style={{ background: color, color: textColor }}
             >
                 {name}
@@ -134,33 +170,17 @@ function PeerLabel({ color, textColor, name }: { color: string; textColor: strin
     )
 }
 
-function CodeLine1() {
-    return (
-        <span>
-            <span className="text-[#ff7b72]">import</span>{' '}
-            <span className="text-[#e6edf3]">{'{ useRoom }'}</span>{' '}
-            <span className="text-[#ff7b72]">from</span>{' '}
-            <span className="text-[#7ee787]">"@collabcode/live"</span>;
-        </span>
-    )
-}
-
-function CodeLine3() {
-    return (
-        <span>
-            <span className="text-[#ff7b72]">export function</span>{' '}
-            <span className="text-[#d2a8ff]">Editor</span>
-            <span className="text-[#e6edf3]">({'{ roomId }'})</span> {'{'}
-        </span>
-    )
-}
-
 function CodeBody({ showCursors }: { showCursors: boolean }) {
     return (
-        <div className="overflow-hidden py-4 pb-6.5 font-mono text-[13.5px] leading-6.5">
+        <div className="overflow-hidden py-[clamp(1rem,2.5vh,2rem)] font-mono text-[13.5px] leading-[clamp(1.6rem,3.4vh,2.1rem)]">
             <div className="flex">
                 <LineNumber n={1} />
-                <CodeLine1 />
+                <span>
+                    <span className="text-[#ff9492]">import</span>{' '}
+                    <span className="text-cream">{'{ useRoom }'}</span>{' '}
+                    <span className="text-[#ff9492]">from</span>{' '}
+                    <span className="text-[#7ee787]">"@collabcode/live"</span>;
+                </span>
             </div>
             <div className="flex">
                 <LineNumber n={2} />
@@ -168,17 +188,21 @@ function CodeBody({ showCursors }: { showCursors: boolean }) {
             </div>
             <div className="flex">
                 <LineNumber n={3} />
-                <CodeLine3 />
+                <span>
+                    <span className="text-[#ff9492]">export function</span>{' '}
+                    <span className="text-[#dcbdfb]">Editor</span>
+                    <span className="text-cream">({'{ roomId }'})</span> {'{'}
+                </span>
             </div>
 
             <div className="flex">
                 <LineNumber n={4} />
                 <span>
                     {'        '}
-                    <span className="text-[#ff7b72]">const</span>{' '}
-                    <span className="text-[#e6edf3]">{'{ peers, doc }'}</span> ={' '}
-                    <span className="text-[#d2a8ff]">useRoom</span>(
-                    <span className="text-[#e6edf3]">roomId</span>);
+                    <span className="text-[#ff9492]">const</span>{' '}
+                    <span className="text-cream">{'{ peers, doc }'}</span> ={' '}
+                    <span className="text-[#dcbdfb]">useRoom</span>(
+                    <span className="text-cream">roomId</span>);
                     {showCursors && <PeerLabel color="#f472b6" textColor="#1a0a12" name="Maya" />}
                 </span>
             </div>
@@ -197,11 +221,11 @@ function CodeBody({ showCursors }: { showCursors: boolean }) {
                 <LineNumber n={7} />
                 <span>
                     {'        '}
-                    <span className="text-[#e6edf3]">doc</span>.
-                    <span className="text-[#d2a8ff]">on</span>(
+                    <span className="text-cream">doc</span>.
+                    <span className="text-[#dcbdfb]">on</span>(
                     <span className="text-[#7ee787]">"change"</span>, (
                     <span className="text-[#ffa657]">patch</span>){' '}
-                    <span className="text-[#ff7b72]">=&gt;</span> {'{'}
+                    <span className="text-[#ff9492]">=&gt;</span> {'{'}
                 </span>
             </div>
 
@@ -209,10 +233,10 @@ function CodeBody({ showCursors }: { showCursors: boolean }) {
                 <LineNumber n={8} />
                 <span>
                     {'            '}
-                    <span className="text-[#d2a8ff]">broadcast</span>(
-                    <span className="text-[#e6edf3]">patch</span>,{' '}
-                    <span className="text-[#e6edf3]">peers</span>);
-                    {showCursors && <PeerLabel color="#34d399" textColor="#062015" name="Ravi" />}
+                    <span className="text-[#dcbdfb]">broadcast</span>(
+                    <span className="text-cream">patch</span>,{' '}
+                    <span className="text-cream">peers</span>);
+                    {showCursors && <PeerLabel color="#7ee787" textColor="#062015" name="Ravi" />}
                 </span>
             </div>
 
@@ -229,15 +253,15 @@ function CodeBody({ showCursors }: { showCursors: boolean }) {
                 <LineNumber n={11} />
                 <span>
                     {'        '}
-                    <span className="text-[#ff7b72]">return</span>{' '}
-                    <span className="text-[#e6edf3]">&lt;</span>
+                    <span className="text-[#ff9492]">return</span>{' '}
+                    <span className="text-cream">&lt;</span>
                     <span className="text-[#7ee787]">Canvas</span>{' '}
                     <span className="text-[#ffa657]">doc</span>=
-                    <span className="text-[#e6edf3]">{'{doc}'}</span>{' '}
+                    <span className="text-cream">{'{doc}'}</span>{' '}
                     <span className="text-[#ffa657]">peers</span>=
-                    <span className="text-[#e6edf3]">{'{peers}'}</span>{' '}
-                    <span className="text-[#e6edf3]">/&gt;</span>;
-                    {showCursors && <PeerLabel color="#fb923c" textColor="#1f1005" name="Ada" />}
+                    <span className="text-cream">{'{peers}'}</span>{' '}
+                    <span className="text-cream">/&gt;</span>;
+                    {showCursors && <PeerLabel color="#fbbf24" textColor="#1f1005" name="Ada" />}
                 </span>
             </div>
 

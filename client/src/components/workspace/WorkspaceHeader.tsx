@@ -30,41 +30,45 @@ export function WorkspaceHeader({
     }
 
     return (
-        <header className="flex shrink-0 items-center justify-between border-b border-border bg-surface px-4 py-2.5">
-            <div className="flex items-center gap-3">
+        <header className="flex shrink-0 items-center justify-between gap-4 border-b border-border bg-canvas px-4 py-3">
+            <div className="flex min-w-0 items-center gap-3">
                 <Link
                     to="/dashboard"
                     aria-label="Back to dashboard"
-                    className="rounded p-1 text-dim hover:bg-surface-raised hover:text-heading"
+                    className="rounded-md p-1.5 text-dim transition-colors hover:bg-surface hover:text-cream"
                 >
                     <LuArrowLeft className="size-4" />
                 </Link>
-                <span className="text-sm font-medium text-heading">{projectName}</span>
+                <span className="truncate font-serif text-lg leading-none text-cream">
+                    {projectName}
+                </span>
             </div>
 
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-4">
                 <PresenceBar users={users} currentUserId={currentUserId} />
 
-                <button
-                    onClick={onRun}
-                    disabled={!canRun || running}
-                    className="flex items-center gap-1.5 rounded-lg border border-border-strong px-3 py-1.5 text-xs text-muted hover:text-heading disabled:opacity-40"
-                >
-                    <LuPlay className="size-3.5" />
-                    {running ? 'Running…' : 'Run'}
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={onRun}
+                        disabled={!canRun || running}
+                        className="label flex items-center gap-2 rounded-full border border-border-strong px-3.5 py-2 text-muted transition-colors hover:border-cream/50 hover:text-cream disabled:opacity-35 disabled:hover:border-border-strong disabled:hover:text-muted"
+                    >
+                        <LuPlay className="size-3" />
+                        {running ? 'Running…' : 'Run'}
+                    </button>
 
-                <button
-                    onClick={handleShare}
-                    className="flex items-center gap-1.5 rounded-lg border border-border-strong px-3 py-1.5 text-xs text-muted hover:text-heading"
-                >
-                    {copied ? (
-                        <LuCheck className="size-3.5 text-success" />
-                    ) : (
-                        <LuLink className="size-3.5" />
-                    )}
-                    {copied ? 'Copied' : 'Share'}
-                </button>
+                    <button
+                        onClick={handleShare}
+                        className="label flex items-center gap-2 rounded-full border border-border-strong px-3.5 py-2 text-muted transition-colors hover:border-cream/50 hover:text-cream"
+                    >
+                        {copied ? (
+                            <LuCheck className="size-3 text-live" />
+                        ) : (
+                            <LuLink className="size-3" />
+                        )}
+                        {copied ? 'Copied' : 'Share'}
+                    </button>
+                </div>
             </div>
         </header>
     )

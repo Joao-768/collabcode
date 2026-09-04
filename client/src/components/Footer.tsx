@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom'
+import { Wordmark } from '@/components/Wordmark'
+
 type FooterProps = {
     githubUrl?: string
     builtBy?: string
@@ -5,26 +8,62 @@ type FooterProps = {
 
 export function Footer({ githubUrl = 'https://github.com', builtBy = 'Your Name' }: FooterProps) {
     return (
-        <footer className="border-t border-border bg-canvas px-8 pt-9 pb-12">
-            <div className="mx-auto flex max-w-295 flex-wrap items-center justify-between gap-5">
-                <div className="flex items-center gap-2.5">
-                    <span className="flex size-6 items-center justify-center gap-0.5 rounded-md border border-border-strong bg-surface-raised">
-                        <span className="size-0.75 rounded-full bg-accent" />
-                        <span className="size-0.75 rounded-full bg-[#3b6fef]" />
-                        <span className="size-0.75 rounded-full bg-[#5b84f2]" />
-                    </span>
-                    <span className="text-sm font-semibold">CollabCode</span>
+        <footer className="border-t border-border px-8 pt-20 pb-12">
+            <div className="mx-auto w-full max-w-7xl">
+                <div className="flex flex-wrap items-start justify-between gap-10">
+                    <div className="flex max-w-xs flex-col gap-4">
+                        <Wordmark />
+                        <p className="m-0 text-sm leading-[1.6] text-dim">
+                            A collaborative editor for teams that would rather build together than
+                            merge afterwards.
+                        </p>
+                    </div>
+
+                    <div className="flex gap-16">
+                        <FooterColumn title="Product">
+                            <FooterLink href="#features">Features</FooterLink>
+                            <FooterLink href="#how">How it works</FooterLink>
+                            <FooterLink href="#workspace">Workspace</FooterLink>
+                        </FooterColumn>
+
+                        <FooterColumn title="Account">
+                            <FooterRoute to="/login">Log in</FooterRoute>
+                            <FooterRoute to="/register">Get started</FooterRoute>
+                            <FooterLink href={githubUrl}>GitHub</FooterLink>
+                        </FooterColumn>
+                    </div>
                 </div>
 
-                <div className="flex items-center gap-5.5 text-[13.5px] text-muted">
-                    <a href={githubUrl} className="hover:text-heading">
-                        GitHub
-                    </a>
-                    <span className="font-mono text-[12.5px] text-dim">Built by {builtBy}</span>
+                <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-7 font-mono text-[11.5px] text-faint">
+                    <span>© 2026 CollabCode</span>
+                    <span>Built by {builtBy}</span>
                 </div>
-
-                <div className="font-mono text-xs text-[#5a5a5a]">© 2026 CollabCode</div>
             </div>
         </footer>
+    )
+}
+
+function FooterColumn({ title, children }: { title: string; children: React.ReactNode }) {
+    return (
+        <div className="flex flex-col gap-4">
+            <span className="label text-faint">{title}</span>
+            <div className="flex flex-col gap-3 text-sm text-muted">{children}</div>
+        </div>
+    )
+}
+
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+    return (
+        <a href={href} className="transition-colors hover:text-cream">
+            {children}
+        </a>
+    )
+}
+
+function FooterRoute({ to, children }: { to: string; children: React.ReactNode }) {
+    return (
+        <Link to={to} className="transition-colors hover:text-cream">
+            {children}
+        </Link>
     )
 }

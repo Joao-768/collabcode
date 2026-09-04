@@ -1,0 +1,32 @@
+databases:
+    - name: collabcode-db
+      databaseName: collabcode
+      plan: free
+
+services:
+    - type: web
+      name: collabcode
+      runtime: node
+      plan: free
+      # The client is built into client/dist and served by the Express server,
+      # so the app, the API and the websockets all share a single origin.
+      buildCommand: npm install && npm run build
+      startCommand: npm start
+      healthCheckPath: /health
+      envVars:
+          - key: NODE_ENV
+            value: production
+          - key: DATABASE_URL
+            fromDatabase:
+                name: collabcode-db
+                property: connectionString
+          - key: JWT_SECRET
+            generateValue: true
+          - key: JWT_EXPIRES_IN
+            value: 7d
+          # Same-origin in production; Render fills this in with the service URL.
+          - key: CLIENT_ORIGIN
+            fromService:
+                type: web
+                name: collabcode
+                envVarKey: RENDER_EXTERNAL_URL
