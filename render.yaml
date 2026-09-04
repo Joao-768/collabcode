@@ -12,7 +12,9 @@ services:
       region: frankfurt
       # The client is built into client/dist and served by the Express server,
       # so the app, the API and the websockets all share a single origin.
-      buildCommand: npm install && npm run build
+      # NODE_ENV=production makes npm skip devDependencies, but the build needs
+      # them: tsc and the @types packages are dev-only.
+      buildCommand: npm ci --include=dev && npm run build
       startCommand: npm start
       healthCheckPath: /health
       envVars:

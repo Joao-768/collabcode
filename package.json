@@ -11,9 +11,8 @@
         "dev": "concurrently -n server,client -c cyan,magenta \"npm:dev:server\" \"npm:dev:client\"",
         "dev:client": "npm run dev -w client",
         "dev:server": "npm run dev -w server",
-        "build": "npm run build -w server && npm run build -w client",
+        "build": "npm run prisma:generate -w server && npm run build -w server && npm run build -w client",
         "start": "npm run start -w server",
-        "postinstall": "npm run prisma:generate -w server",
         "lint": "npm run lint --workspaces --if-present",
         "test": "npm run test -w server"
     },
