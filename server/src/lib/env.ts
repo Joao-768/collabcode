@@ -10,7 +10,12 @@ const envSchema = z.object({
     CLIENT_ORIGIN: z.url(),
 })
 
-const parsed = envSchema.safeParse(process.env)
+// Render exposes the service's public URL as RENDER_EXTERNAL_URL. The client is
+// served from that same origin, so it doubles as CLIENT_ORIGIN in production.
+const parsed = envSchema.safeParse({
+    ...process.env,
+    CLIENT_ORIGIN: process.env.CLIENT_ORIGIN ?? process.env.RENDER_EXTERNAL_URL,
+})
 
 if (!parsed.success) {
     console.error('Invalid environment variables:')
