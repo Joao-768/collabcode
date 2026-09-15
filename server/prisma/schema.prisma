@@ -12,4 +12,13 @@ model User {
     email String @unique
     password_hash String
     created_at DateTime @default(now())
-} 
+    projects Project[]
+}
+
+model Project {
+    id String @id @default(cuid())
+    name String
+    ownerId String
+    owner User @relation(fields: [ownerId], references: [id])
+    created_at DateTime @default(now())
+}
