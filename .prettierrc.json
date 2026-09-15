@@ -1,0 +1,16 @@
+{
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 100,
+    "plugins": ["prettier-plugin-prisma"],
+    "overrides": [
+        {
+            "files": "*.prisma",
+            "options": {
+                "tabWidth": 4
+            }
+        }
+    ]
+}

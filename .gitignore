@@ -1,0 +1,23 @@
+# Dependencies (with workspaces, most of it lives at the root)
+node_modules
+
+# Builds
+dist
+dist-ssr
+*.local
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store

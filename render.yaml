@@ -1,0 +1,33 @@
+databases:
+    - name: collabcode-db
+      plan: free
+      region: frankfurt
+      postgresMajorVersion: '17'
+
+services:
+    - type: web
+      name: collabcode
+      runtime: node
+      plan: free
+      region: frankfurt
+      # The client is built into client/dist and served by the Express server,
+      # so the app, the API and the websockets all share a single origin.
+      # NODE_ENV=production makes npm skip devDependencies, but the build needs
+      # them: tsc and the @types packages are dev-only.
+      buildCommand: npm ci --include=dev && npm run build
+      startCommand: npm start
+      healthCheckPath: /health
+      envVars:
+          - key: NODE_ENV
+            value: production
+          - key: DATABASE_URL
+            fromDatabase:
+                name: collabcode-db
+                property: connectionString
+          - key: JWT_SECRET
+            generateValue: true
+          - key: JWT_EXPIRES_IN
+            value: 7d
+          # The client is served from this same service, so CORS only needs to
+          # allow this origin. Render provides it as RENDER_EXTERNAL_URL, which
+          # src/lib/env.ts falls back to when CLIENT_ORIGIN is unset.
