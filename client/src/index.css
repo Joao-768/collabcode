@@ -1,1 +1,135 @@
 @import 'tailwindcss';
+
+/* The CollabCode theme. In Tailwind v4 the theme is declared in CSS with
+   @theme: every variable here generates the matching utilities (bg-surface,
+   text-muted, and so on).
+
+   The palette is editorial: near-black underneath, cream on top. There is no
+   interface blue. The only accent is the cream itself, applied through
+   contrast (a solid cream pill on black). Vivid colors are reserved for
+   functional signals: presence, cursors, console levels. */
+@theme {
+    --color-canvas: #0a0a0a;
+    --color-surface: #101010;
+    --color-surface-raised: #161616;
+    --color-border: #1e1e1e;
+    --color-border-strong: #2c2c2c;
+
+    /* Cream at several intensities. cream is the strong text/background,
+       muted is body copy, dim is secondary, faint is nearly invisible. */
+    --color-cream: #ece7dd;
+    --color-heading: #f2eee6;
+    --color-muted: #9d968a;
+    --color-dim: #6b655c;
+    --color-faint: #46423c;
+
+    /* Kept only for functional states (presence, console, errors). */
+    --color-live: #7ee787;
+    --color-success: #7ee787;
+
+    --font-sans: Inter, Helvetica, Arial, sans-serif;
+    --font-serif: 'Instrument Serif', 'Times New Roman', Times, serif;
+    --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+    /* Height of the fixed header. It lives here so full-screen sections and
+       nav anchors can subtract it without anyone repeating the value by hand. */
+    --header-h: 72px;
+}
+
+@layer base {
+    html {
+        color-scheme: dark;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        /* Without this, clicking a nav anchor hides the top of the section
+           underneath the fixed header. */
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-canvas text-muted font-sans;
+    }
+
+    /* Selection matching the palette instead of the system blue. */
+    ::selection {
+        background: var(--color-cream);
+        color: var(--color-canvas);
+    }
+}
+
+@layer components {
+    /* A section filling exactly one screen, with the fixed header already
+       subtracted. Content is centered vertically; the padding shrinks on short
+       screens so content does not grow past the viewport and bleed into the
+       next section. */
+    .screen {
+        @apply flex flex-col justify-center px-8;
+        min-height: calc(100svh - var(--header-h));
+        padding-block: clamp(2.5rem, 7vh, 5rem);
+        scroll-margin-top: var(--header-h);
+    }
+
+    /* Editorial heading: display serif, tight tracking and short leading so
+       two lines sit close together. */
+    .display {
+        @apply font-serif font-normal tracking-[-0.02em];
+        line-height: 0.98;
+    }
+
+    /* Uppercase mono label, the visual tic repeated in the nav, the section
+       eyebrows and the panel headers. */
+    .label {
+        @apply font-mono text-[11px] tracking-[0.14em] uppercase;
+    }
+
+    /* Cream pill button (primary) and its outline variant (secondary).
+       In Tailwind v4 @apply does not resolve component classes, so the shared
+       base is repeated rather than referenced. */
+    .pill,
+    .pill-solid,
+    .pill-outline {
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.75;
+        @apply font-mono text-[13px] tracking-[0.06em] uppercase;
+        @apply transition-colors duration-150;
+    }
+
+    /* The disabled state stays cream, just dimmer: lowering only the opacity
+       over black turned it into a dead grey that did not read as a button. */
+    .pill-solid {
+        @apply bg-cream text-canvas hover:bg-white;
+        @apply disabled:bg-cream/45 disabled:text-canvas/70 disabled:hover:bg-cream/45;
+    }
+
+    .pill-outline {
+        @apply border border-border-strong text-cream hover:border-cream/60 hover:bg-white/5;
+    }
+
+    /* Form field. Focus is marked in cream, not blue. */
+    .field {
+        @apply w-full rounded-lg border border-border-strong bg-surface px-3.5 py-2.5;
+        @apply text-sm text-heading outline-none transition-colors duration-150;
+        @apply placeholder:text-faint focus:border-cream/50;
+    }
+}
+
+@keyframes caret {
+    0%,
+    45% {
+        opacity: 1;
+    }
+    55%,
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes bob {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-3px);
+    }
+}
