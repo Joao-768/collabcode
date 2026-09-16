@@ -75,3 +75,12 @@ export async function me(req: Request, res: Response) {
         return res.status(500).json({ error: 'Something went wrong' })
     }
 }
+
+export function logout(_req: Request, res: Response) {
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: 'strict',
+    })
+    res.status(200).json({ message: 'Logged out successfully' })
+}
