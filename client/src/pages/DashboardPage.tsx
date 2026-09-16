@@ -1,8 +1,25 @@
 import { Wordmark } from '@/components/Wordmark'
 import { useAuth } from '@/context/authContext'
+import { LuLogOut } from 'react-icons/lu'
 
 export function DashboardPage() {
     const { user } = useAuth()
+
+    function handleLogout() {
+        fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+            method: 'POST',
+            credentials: 'include',
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Logout failed')
+                }
+                window.location.href = '/login'
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+    }
 
     return (
         <div className="min-h-svh bg-canvas text-heading">
@@ -12,7 +29,13 @@ export function DashboardPage() {
 
                     <div className="flex items-center gap-5">
                         <span className="label hidden text-dim sm:inline">{user?.name}</span>
-                        {/* TODO: a log out button, calling POST /auth/logout. */}
+                        <button
+                            onClick={handleLogout}
+                            className="label flex items-center gap-2 text-muted transition-colors hover:text-cream"
+                        >
+                            <LuLogOut className="size-3.5" />
+                            Log out
+                        </button>
                     </div>
                 </div>
             </header>
