@@ -1,4 +1,4 @@
-import { loginUser, registerUser } from '../services/auth.service.js'
+import { getUserById, loginUser, registerUser } from '../services/auth.service.js'
 import { loginSchema, registerSchema } from '../schemas/auth.schema.js'
 import type { Request, Response } from 'express'
 import { tokenizeUser } from '../lib/jwt.js'
@@ -53,6 +53,24 @@ export async function login(req: Request, res: Response) {
     } catch (error) {
         if (error instanceof Error && error.message === 'Invalid email or password') {
             return res.status(401).json({ error: error.message })
+        }
+        return res.status(500).json({ error: 'Something went wrong' })
+    }
+}
+
+export async function me(req: Request, res: Response) {
+    const userId = req.userId
+
+    if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    try {
+        const user = await getUserById(userId)
+        res.json({ user })
+    } catch (error) {
+        if (error instanceof Error && error.message === 'User not found') {
+            return res.status(404).json({ error: error.message })
         }
         return res.status(500).json({ error: 'Something went wrong' })
     }
