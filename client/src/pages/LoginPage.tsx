@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Spinner } from '@/components/ui/Spinner'
 import { AuthLayout, Field, FormError } from '@/components/auth/AuthLayout'
