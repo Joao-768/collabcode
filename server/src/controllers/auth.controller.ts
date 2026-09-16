@@ -1,6 +1,7 @@
 import { loginUser, registerUser } from '../services/auth.service.js'
 import { loginSchema, registerSchema } from '../schemas/auth.schema.js'
 import type { Request, Response } from 'express'
+import { tokenizeUser } from '../lib/jwt.js'
 
 export async function register(req: Request, res: Response) {
     const parsed = registerSchema.safeParse(req.body)
@@ -13,7 +14,14 @@ export async function register(req: Request, res: Response) {
 
     try {
         const user = await registerUser(name, email, password)
-        res.status(201).json({ user })
+        const token = tokenizeUser(user)
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        })
+        res.json({ user })
     } catch (error) {
         if (error instanceof Error && error.message === 'User already exists') {
             return res.status(409).json({ error: error.message })
@@ -33,7 +41,14 @@ export async function login(req: Request, res: Response) {
 
     try {
         const user = await loginUser(email, password)
-        res.status(200).json({ user })
+        const token = tokenizeUser(user)
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        })
+        res.json({ user })
     } catch (error) {
         if (error instanceof Error && error.message === 'Invalid email or password') {
             return res.status(401).json({ error: error.message })
