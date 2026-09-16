@@ -12,8 +12,29 @@ export function RegisterPage() {
 
     async function handleSubmit(event: FormEvent) {
         event.preventDefault()
+        setSubmitting(true)
+        setError(null)
 
-        // TODO: call POST /api/auth/register, then navigate to the dashboard.
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password }),
+            })
+
+            if (!response.ok) {
+                const data = await response.json()
+                setError(data.error || 'Something went wrong')
+                setSubmitting(false)
+                return
+            }
+
+            window.location.href = '/dashboard'
+        } catch (err) {
+            setError('Something went wrong')
+            setSubmitting(false)
+        }
     }
 
     return (
