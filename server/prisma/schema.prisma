@@ -32,7 +32,10 @@ model ProjectMember {
   role      Role    @default(COLLABORATOR)
   projectId String
   project   Project @relation(fields: [projectId], references: [id])
+
+  @@unique([userId, projectId])
 }
+
 
 enum Role {
   COLLABORATOR
