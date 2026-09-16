@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Spinner } from '@/components/ui/Spinner'
 import { AuthLayout, Field, FormError } from '@/components/auth/AuthLayout'
@@ -11,8 +11,29 @@ export function LoginPage() {
 
     async function handleSubmit(event: FormEvent) {
         event.preventDefault()
+        setSubmitting(true)
+        setError(null)
 
-        // TODO: call POST /api/auth/login, then navigate to the dashboard.
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            })
+
+            if (!response.ok) {
+                const data = await response.json()
+                setError(data.error || 'Something went wrong')
+                setSubmitting(false)
+                return
+            }
+
+            window.location.href = '/dashboard'
+        } catch (err) {
+            setError('Something went wrong')
+            setSubmitting(false)
+        }
     }
 
     return (
