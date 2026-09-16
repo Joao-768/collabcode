@@ -2,8 +2,11 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Spinner } from '@/components/ui/Spinner'
 import { AuthLayout, Field, FormError } from '@/components/auth/AuthLayout'
+import { useAuth } from '@/context/authContext'
+import { Navigate } from 'react-router-dom'
 
 export function RegisterPage() {
+    const { user, setUser } = useAuth()
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -30,11 +33,17 @@ export function RegisterPage() {
                 return
             }
 
+            const data = await response.json()
+            setUser(data.user)
             window.location.href = '/dashboard'
         } catch (err) {
             setError('Something went wrong')
             setSubmitting(false)
         }
+    }
+
+    if (user) {
+        return <Navigate to="/dashboard" replace />
     }
 
     return (
