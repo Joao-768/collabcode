@@ -3,6 +3,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
 import { env } from './lib/env.js'
+import { authRouter } from './routes/auth.routes.js'
 
 export const app = express()
 
@@ -17,3 +18,5 @@ app.use(cookieParser())
 app.get('/health', (_req, res) => {
     res.json({ status: 'ok' })
 })
+
+app.use('/api/auth', authRouter)
