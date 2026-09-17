@@ -4,6 +4,7 @@ import { env } from '../lib/env.js'
 import { parse } from 'cookie'
 import { verifyToken } from '../lib/jwt.js'
 import { assertMember } from '../services/file.service.js'
+import { prisma } from '../lib/prisma.js'
 
 export function createSocketServer(httpServer: HttpServer) {
     const io = new Server(httpServer, {
@@ -13,7 +14,7 @@ export function createSocketServer(httpServer: HttpServer) {
         },
     })
 
-    io.use((socket, next) => {
+    io.use(async (socket, next) => {
         const raw = socket.handshake.headers.cookie
 
         if (!raw) {
@@ -33,6 +34,17 @@ export function createSocketServer(httpServer: HttpServer) {
         }
 
         socket.data.userId = payload.id
+        const user = await prisma.user.findUnique({
+            where: { id: payload.id },
+            select: { id: true, name: true },
+        })
+
+        if (!user) {
+            return next(new Error('Unauthorized'))
+        }
+
+        socket.data.user = user
+
         next()
     })
 
@@ -43,6 +55,20 @@ export function createSocketServer(httpServer: HttpServer) {
             try {
                 await assertMember(projectId, socket.data.userId)
                 socket.join(`project:${projectId}`)
+
+                const room = `project:${projectId}`
+                socket.data.rooms = [...(socket.data.rooms ?? []), room]
+
+                // Everyone already in the room learns about the arrival.
+                socket.to(room).emit('presence:joined', { user: socket.data.user })
+
+                // The arriving socket learns who is already here. Sockets in a
+                // room are the source of truth for presence: no table to keep
+                // in sync, and a dropped connection removes itself.
+                const sockets = await io.in(room).fetchSockets()
+                const users = sockets.map((s) => s.data.user)
+
+                socket.emit('presence:list', { users })
             } catch {
                 socket.emit('error', { message: 'Project not found' })
             }
@@ -50,6 +76,12 @@ export function createSocketServer(httpServer: HttpServer) {
 
         socket.on('disconnect', () => {
             console.log('Socket disconnected:', socket.id)
+
+            // socket.rooms is already emptied by the time this fires, so the
+            // rooms it was in come from the event's own argument.
+            for (const room of socket.data.rooms ?? []) {
+                socket.to(room).emit('presence:left', { user: socket.data.user })
+            }
         })
     })
 
