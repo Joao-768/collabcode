@@ -1,5 +1,6 @@
 import { getUserById, loginUser, registerUser } from '../services/auth.service.js'
 import { loginSchema, registerSchema } from '../schemas/auth.schema.js'
+import { formatIssues } from '../lib/validation.js'
 import type { Request, Response } from 'express'
 import { tokenizeUser } from '../lib/jwt.js'
 import { env } from '../lib/env.js'
@@ -8,7 +9,7 @@ export async function register(req: Request, res: Response) {
     const parsed = registerSchema.safeParse(req.body)
 
     if (!parsed.success) {
-        return res.status(400).json({ errors: parsed.error.issues })
+        return res.status(400).json({ errors: formatIssues(parsed.error) })
     }
 
     const { name, email, password } = parsed.data
@@ -35,7 +36,7 @@ export async function login(req: Request, res: Response) {
     const parsed = loginSchema.safeParse(req.body)
 
     if (!parsed.success) {
-        return res.status(400).json({ errors: parsed.error.issues })
+        return res.status(400).json({ errors: formatIssues(parsed.error) })
     }
 
     const { email, password } = parsed.data

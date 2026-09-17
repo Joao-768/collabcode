@@ -1,12 +1,13 @@
 import type { Request, Response } from 'express'
 import { createProjectSchema } from '../schemas/project.schema.js'
+import { formatIssues } from '../lib/validation.js'
 import { createProject, listProjects, deleteProject } from '../services/project.service.js'
 
 export async function create(req: Request, res: Response) {
     const parsed = createProjectSchema.safeParse(req.body)
 
     if (!parsed.success) {
-        return res.status(400).json({ errors: parsed.error.issues })
+        return res.status(400).json({ errors: formatIssues(parsed.error) })
     }
 
     if (!req.userId) {

@@ -22,6 +22,12 @@ export function listProjects(userId: string) {
                 some: { userId },
             },
         },
+        orderBy: { created_at: 'desc' },
+        include: {
+            _count: {
+                select: { members: true },
+            },
+        },
     })
 }
 
