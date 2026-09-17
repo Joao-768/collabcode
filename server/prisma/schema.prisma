@@ -23,6 +23,8 @@ model Project {
   owner      User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   created_at DateTime        @default(now())
   members    ProjectMember[]
+  files      File[]
+
 }
 
 model ProjectMember {
@@ -39,4 +41,16 @@ model ProjectMember {
 enum Role {
   COLLABORATOR
   OWNER
+}
+
+model File {
+  id         String   @id @default(cuid())
+  name       String
+  content    String   @default("")
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([projectId, name])
 }
