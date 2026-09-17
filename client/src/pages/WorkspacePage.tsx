@@ -4,6 +4,10 @@ import { LuArrowLeft } from 'react-icons/lu'
 import { FileTree } from '@/components/workspace/FileTree'
 import type { ProjectFile } from '@/components/workspace/FileTree'
 import { Spinner } from '@/components/ui/Spinner'
+import { useSocket } from '@/hooks/useSocket'
+import { usePresence } from '@/hooks/usePresence'
+import { useAuth } from '@/context/authContext'
+import { PresenceBar } from '@/components/workspace/PresenceBar'
 
 type FileContent = ProjectFile & {
     content: string
@@ -16,6 +20,9 @@ export function WorkspacePage() {
     const [activeFile, setActiveFile] = useState<FileContent | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const socket = useSocket(projectId)
+    const presentUsers = usePresence(socket)
+    const { user } = useAuth()
 
     useEffect(() => {
         async function fetchFiles() {
@@ -128,6 +135,9 @@ export function WorkspacePage() {
                 <span className="truncate font-serif text-lg leading-none text-cream">
                     Workspace
                 </span>
+                <div className="ml-auto">
+                    <PresenceBar users={presentUsers} currentUserId={user?.id} />
+                </div>
             </header>
 
             {error && (
