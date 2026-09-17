@@ -1,6 +1,6 @@
 import { prisma } from '../lib/prisma.js'
 
-async function assertMember(projectId: string, userId: string) {
+export async function assertMember(projectId: string, userId: string) {
     const membership = await prisma.projectMember.findUnique({
         where: {
             userId_projectId: { userId, projectId },
