@@ -1,8 +1,10 @@
 import { createServer } from 'node:http'
 import { app } from './app.js'
 import { env } from './lib/env.js'
+import { createSocketServer } from './socket/index.js'
 
 const httpServer = createServer(app)
+createSocketServer(httpServer)
 
 // Bind on 0.0.0.0, not the default. A host platform reaches the container over
 // IPv4, and the default binding leaves it unreachable from outside.
