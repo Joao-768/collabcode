@@ -45,6 +45,21 @@ export function WorkspacePage() {
         fetchFiles()
     }, [projectId])
 
+    useEffect(() => {
+        if (!activeFile) return
+
+        const timer = setTimeout(() => {
+            fetch(`${import.meta.env.VITE_API_URL}/files/${activeFile.id}`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: activeFile.content }),
+            }).catch(() => setError('Could not save'))
+        }, 1000)
+
+        return () => clearTimeout(timer)
+    }, [activeFile?.id, activeFile?.content])
+
     async function handleSelect(fileId: string) {
         if (!projectId) return
 
