@@ -2,7 +2,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { Wordmark } from '@/components/Wordmark'
 import { useAuth } from '@/context/authContext'
 import { useEffect, useState } from 'react'
-import { LuLogOut } from 'react-icons/lu'
+import { LuLogOut, LuPlus } from 'react-icons/lu'
 
 type Project = {
     id: string
@@ -17,6 +17,8 @@ export function DashboardPage() {
     const [projects, setProjects] = useState<Project[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [name, setName] = useState('')
+    const [creating, setCreating] = useState(false)
 
     useEffect(() => {
         fetch(`${import.meta.env.VITE_API_URL}/projects`, {
@@ -54,6 +56,34 @@ export function DashboardPage() {
             })
     }
 
+    function handleCreate(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        setCreating(true)
+        setError(null)
+
+        fetch(`${import.meta.env.VITE_API_URL}/projects`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name }),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Failed to create project')
+                }
+                return response.json()
+            })
+            .then((data) => {
+                setProjects((prevProjects) => [data.project, ...prevProjects])
+                setName('')
+                setCreating(false)
+            })
+            .catch((err) => {
+                setError(err.message)
+                setCreating(false)
+            })
+    }
+
     return (
         <div className="min-h-svh bg-canvas text-heading">
             <header className="border-b border-border">
@@ -80,6 +110,29 @@ export function DashboardPage() {
                 <p className="mt-4 mb-10 max-w-md text-[15px] leading-[1.6] text-muted">
                     Create a room, share the link, and start coding together.
                 </p>
+
+                <form onSubmit={handleCreate} className="mb-10 flex flex-wrap gap-3">
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="New project name"
+                        maxLength={80}
+                        className="field min-w-60 flex-1"
+                    />
+                    <button
+                        type="submit"
+                        disabled={creating || !name.trim()}
+                        className="pill-solid"
+                    >
+                        {creating ? (
+                            <Spinner className="size-3.5 border-canvas/30 border-t-canvas" />
+                        ) : (
+                            <LuPlus className="size-3.5" />
+                        )}
+                        Create
+                    </button>
+                </form>
 
                 {loading ? (
                     <div className="grid place-items-center py-24">
