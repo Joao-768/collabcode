@@ -83,6 +83,12 @@ export function createSocketServer(httpServer: HttpServer) {
                 socket.to(room).emit('presence:left', { user: socket.data.user })
             }
         })
+
+        socket.on('file:change', ({ fileId, content }) => {
+            for (const room of socket.data.rooms ?? []) {
+                socket.to(room).emit('file:changed', { fileId, content })
+            }
+        })
     })
 
     return io

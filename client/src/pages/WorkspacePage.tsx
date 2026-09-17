@@ -114,6 +114,22 @@ export function WorkspacePage() {
         }
     }
 
+    useEffect(() => {
+        if (!socket) return
+
+        function handleChanged({ fileId, content }: { fileId: string; content: string }) {
+            setActiveFile((current) =>
+                current && current.id === fileId ? { ...current, content } : current,
+            )
+        }
+
+        socket.on('file:changed', handleChanged)
+
+        return () => {
+            socket.off('file:changed', handleChanged)
+        }
+    }, [socket])
+
     if (loading) {
         return (
             <div className="grid min-h-svh place-items-center bg-canvas">
@@ -158,9 +174,15 @@ export function WorkspacePage() {
                     {activeFile ? (
                         <textarea
                             value={activeFile.content}
-                            onChange={(e) =>
-                                setActiveFile({ ...activeFile, content: e.target.value })
-                            }
+                            onChange={(e) => {
+                                const content = e.target.value
+                                setActiveFile({ ...activeFile, content })
+                                socket?.emit('file:change', {
+                                    fileId: activeFile.id,
+                                    content,
+                                })
+                            }}
+
                             spellCheck={false}
                             className="h-full w-full resize-none bg-canvas p-4 font-mono text-[13.5px] leading-relaxed text-heading outline-none"
                         />
