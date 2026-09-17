@@ -27,9 +27,21 @@ export async function getFile(fileId: string, userId: string) {
 export async function createFile(projectId: string, name: string, userId: string) {
     await assertMember(projectId, userId)
 
-    return prisma.file.create({
-        data: { name, projectId },
-    })
+    try {
+        return await prisma.file.create({
+            data: { name, projectId },
+        })
+    } catch (error) {
+        if (
+            typeof error === 'object' &&
+            error !== null &&
+            'code' in error &&
+            error.code === 'P2002'
+        ) {
+            throw new Error('File already exists')
+        }
+        throw error
+    }
 }
 
 export async function listFiles(projectId: string, userId: string) {

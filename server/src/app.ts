@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'
 import { env } from './lib/env.js'
 import { authRouter } from './routes/auth.routes.js'
 import { projectRouter } from './routes/project.routes.js'
+import { fileRouter } from './routes/file.routes.js'
 
 export const app = express()
 
@@ -22,3 +23,4 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/auth', authRouter)
 app.use('/api/projects', projectRouter)
+app.use('/api/files', fileRouter)
