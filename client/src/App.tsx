@@ -5,6 +5,7 @@ import { RegisterPage } from '@/pages/RegisterPage'
 import { AuthProvider } from './context/authContext'
 import { ProtectedRoute } from './components/layout/ProtectedRoute'
 import { DashboardPage } from './pages/DashboardPage'
+import { WorkspacePage } from './pages/WorkspacePage'
 
 export default function App() {
     return (
@@ -17,6 +18,7 @@ export default function App() {
                     <Route element={<ProtectedRoute />}>
                         <Route path="/dashboard" element={<DashboardPage />} />
                     </Route>
+                    <Route path="/workspace/:id" element={<WorkspacePage />} />
                 </Routes>
             </BrowserRouter>
         </AuthProvider>

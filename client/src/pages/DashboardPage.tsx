@@ -3,6 +3,7 @@ import { Wordmark } from '@/components/Wordmark'
 import { useAuth } from '@/context/authContext'
 import { useEffect, useState } from 'react'
 import { LuLogOut, LuPlus, LuTrash2 } from 'react-icons/lu'
+import { Link } from 'react-router-dom'
 
 type Project = {
     id: string
@@ -176,14 +177,14 @@ export function DashboardPage() {
                                 key={project.id}
                                 className="group flex items-center justify-between gap-4 bg-canvas px-4 py-5 transition-colors hover:bg-surface"
                             >
-                                <div className="min-w-0 flex-1">
+                                <Link to={`/workspace/${project.id}`} className="min-w-0 flex-1">
                                     <p className="m-0 truncate font-serif text-xl text-heading">
                                         {project.name}
                                     </p>
                                     <p className="mt-1.5 m-0 font-mono text-[11.5px] text-dim">
                                         {project._count?.members ?? 1} members
                                     </p>
-                                </div>
+                                </Link>
                                 {project.ownerId === user?.id && (
                                     <button
                                         onClick={() => handleDelete(project.id)}
