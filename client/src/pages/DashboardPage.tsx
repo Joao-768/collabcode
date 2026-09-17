@@ -2,7 +2,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { Wordmark } from '@/components/Wordmark'
 import { useAuth } from '@/context/authContext'
 import { useEffect, useState } from 'react'
-import { LuLogOut, LuPlus } from 'react-icons/lu'
+import { LuLogOut, LuPlus, LuTrash2 } from 'react-icons/lu'
 
 type Project = {
     id: string
@@ -39,6 +39,24 @@ export function DashboardPage() {
                 setLoading(false)
             })
     }, [])
+
+    function handleDelete(projectId: string) {
+        fetch(`${import.meta.env.VITE_API_URL}/projects/${projectId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete project')
+                }
+                setProjects((prevProjects) =>
+                    prevProjects.filter((project) => project.id !== projectId),
+                )
+            })
+            .catch((err) => {
+                setError(err.message)
+            })
+    }
 
     function handleLogout() {
         fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
@@ -134,6 +152,12 @@ export function DashboardPage() {
                     </button>
                 </form>
 
+                {error && (
+                    <p className="mb-6 rounded-lg border border-red-900/50 bg-red-950/30 px-3.5 py-2.5 text-sm text-red-300">
+                        {error}
+                    </p>
+                )}
+
                 {loading ? (
                     <div className="grid place-items-center py-24">
                         <Spinner className="size-6" />
@@ -160,15 +184,18 @@ export function DashboardPage() {
                                         {project._count?.members ?? 1} members
                                     </p>
                                 </div>
+                                {project.ownerId === user?.id && (
+                                    <button
+                                        onClick={() => handleDelete(project.id)}
+                                        aria-label={`Delete ${project.name}`}
+                                        className="rounded-lg p-2 text-faint transition-colors hover:text-red-400"
+                                    >
+                                        <LuTrash2 className="size-4" />
+                                    </button>
+                                )}
                             </li>
                         ))}
                     </ul>
-                )}
-
-                {error && (
-                    <div className="mt-6 rounded-lg bg-red-100 p-4 text-sm text-red-700">
-                        {error}
-                    </div>
                 )}
             </main>
         </div>
