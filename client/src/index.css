@@ -113,6 +113,19 @@
     }
 }
 
+/* Remote cursors in the editor. y-monaco creates these elements and writes one
+   colour rule per client into the document head, but ships no base styles: the
+   markup is there and invisible until the geometry below is supplied. */
+.yRemoteSelection {
+    opacity: 0.4;
+}
+
+.yRemoteSelectionHead {
+    position: relative;
+    border-left: 2px solid;
+    box-sizing: border-box;
+}
+
 @keyframes caret {
     0%,
     45% {

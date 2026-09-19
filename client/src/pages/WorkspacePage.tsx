@@ -10,6 +10,8 @@ import { useAuth } from '@/context/authContext'
 import { PresenceBar } from '@/components/workspace/PresenceBar'
 import { useYDoc } from '@/hooks/useYDoc'
 import { CodeEditor } from '@/components/workspace/CodeEditor'
+import { colorFor } from '@/components/workspace/PresenceBar'
+import { useCursorStyles } from '@/hooks/useCursorStyles'
 
 type FileContent = ProjectFile & {
     content: string
@@ -17,15 +19,18 @@ type FileContent = ProjectFile & {
 
 export function WorkspacePage() {
     const { id: projectId } = useParams<{ id: string }>()
-
     const [files, setFiles] = useState<ProjectFile[]>([])
     const [activeFile, setActiveFile] = useState<FileContent | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const socket = useSocket(projectId)
     const presentUsers = usePresence(socket)
-    const doc = useYDoc(socket, activeFile?.id ?? null, activeFile?.content ?? '')
     const { user } = useAuth()
+    const session = useYDoc(socket, activeFile?.id ?? null, activeFile?.content ?? '')
+    const doc = session?.doc ?? null
+    const awareness = session?.awareness ?? null
+
+    useCursorStyles(awareness)
 
     useEffect(() => {
         async function fetchFiles() {
@@ -80,6 +85,15 @@ export function WorkspacePage() {
             ytext.unobserve(scheduleSave)
         }
     }, [doc, activeFile])
+
+    useEffect(() => {
+        if (!awareness || !user) return
+
+        awareness.setLocalStateField('user', {
+            name: user.name,
+            color: colorFor(user.id),
+        })
+    }, [awareness, user])
 
     async function handleSelect(fileId: string) {
         if (!projectId) return
@@ -170,7 +184,7 @@ export function WorkspacePage() {
 
                 <main className="min-w-0 flex-1">
                     {activeFile ? (
-                        doc && <CodeEditor doc={doc} language="javascript" />
+                        doc && <CodeEditor doc={doc} awareness={awareness} language="javascript" />
                     ) : (
                         <div className="grid h-full place-items-center px-8 text-center">
                             <div>

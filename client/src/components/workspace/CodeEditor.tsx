@@ -5,13 +5,15 @@ import * as Y from 'yjs'
 import { MonacoBinding } from 'y-monaco'
 import { Spinner } from '@/components/ui/Spinner'
 import { EDITOR_THEME, defineEditorTheme } from '@/lib/editor-theme'
+import type { Awareness } from 'y-protocols/awareness'
 
 type CodeEditorProps = {
+    awareness: Awareness | null
     doc: Y.Doc
     language: string
 }
 
-export function CodeEditor({ doc, language }: CodeEditorProps) {
+export function CodeEditor({ doc, awareness, language }: CodeEditorProps) {
     const [instance, setInstance] = useState<editor.IStandaloneCodeEditor | null>(null)
 
     useEffect(() => {
@@ -20,13 +22,19 @@ export function CodeEditor({ doc, language }: CodeEditorProps) {
 
         // One line replaces the hand-written diff and caret arithmetic: the
         // binding keeps the Y.Text and Monaco's model in step, and moves the
-        // caret itself when a remote edit lands before it.
-        const binding = new MonacoBinding(doc.getText('content'), model, new Set([instance]))
+        // caret itself when a remote edit lands before it. Handed an awareness,
+        // it also draws everyone else's cursors and selections.
+        const binding = new MonacoBinding(
+            doc.getText('content'),
+            model,
+            new Set([instance]),
+            awareness,
+        )
 
         return () => {
             binding.destroy()
         }
-    }, [instance, doc])
+    }, [instance, doc, awareness])
 
     return (
         <Editor

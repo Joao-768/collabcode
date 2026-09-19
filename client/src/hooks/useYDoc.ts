@@ -1,23 +1,36 @@
 import { useEffect, useState } from 'react'
 import * as Y from 'yjs'
 import type { Socket } from 'socket.io-client'
+import {
+    Awareness,
+    applyAwarenessUpdate,
+    encodeAwarenessUpdate,
+    removeAwarenessStates,
+} from 'y-protocols/awareness'
+
+export type YSession = {
+    doc: Y.Doc
+    awareness: Awareness
+}
 
 /**
- * Holds one Y.Doc per open file and keeps it in step with the room.
+ * Holds one Y.Doc per open file, plus the awareness that carries cursors.
  *
- * The document, not React state, is the source of truth for the text. React
- * only re-renders when the document says it changed.
+ * The document is persisted; awareness is not. A cursor position only means
+ * anything while its owner is connected, so it lives and dies with the socket
+ * rather than being written anywhere.
  */
 export function useYDoc(socket: Socket | null, fileId: string | null, initialText: string) {
-    const [doc, setDoc] = useState<Y.Doc | null>(null)
+    const [session, setSession] = useState<YSession | null>(null)
 
     useEffect(() => {
         if (!socket || !fileId) {
-            setDoc(null)
+            setSession(null)
             return
         }
 
-        const next = new Y.Doc()
+        const doc = new Y.Doc()
+        const awareness = new Awareness(doc)
 
         // Seeding is the first client's job alone. Two clients each inserting
         // the stored text would be two independent sets of characters as far as
@@ -29,7 +42,7 @@ export function useYDoc(socket: Socket | null, fileId: string | null, initialTex
             if (seeded) return
             seeded = true
             if (initialText) {
-                next.getText('content').insert(0, initialText)
+                doc.getText('content').insert(0, initialText)
             }
         }
 
@@ -41,7 +54,7 @@ export function useYDoc(socket: Socket | null, fileId: string | null, initialTex
             socket!.emit('file:update', { fileId, update })
         }
 
-        next.on('update', handleLocalUpdate)
+        doc.on('update', handleLocalUpdate)
 
         // Remote updates are merged, not assigned. Merging is what makes the
         // order of arrival irrelevant.
@@ -57,7 +70,7 @@ export function useYDoc(socket: Socket | null, fileId: string | null, initialTex
             // An answer arrived, so someone else already holds this document
             // and there is nothing to seed.
             seeded = true
-            Y.applyUpdate(next, new Uint8Array(update), 'remote')
+            Y.applyUpdate(doc, new Uint8Array(update), 'remote')
         }
 
         socket.on('file:update', handleRemoteUpdate)
@@ -69,30 +82,79 @@ export function useYDoc(socket: Socket | null, fileId: string | null, initialTex
             socket!.emit('file:sync-response', {
                 to: from,
                 fileId,
-                update: Y.encodeStateAsUpdate(next),
+                update: Y.encodeStateAsUpdate(doc),
             })
         }
 
         socket.on('file:sync-request', handleSyncRequest)
+
+        // Awareness travels on its own channel: it is not part of the document
+        // and must never be merged into it.
+        let remoteAwareness = false
+
+        function handleLocalAwareness({
+            added,
+            updated,
+            removed,
+        }: {
+            added: number[]
+            updated: number[]
+            removed: number[]
+        }) {
+            if (remoteAwareness) return
+
+            const changed = [...added, ...updated, ...removed]
+            socket!.emit('awareness:update', {
+                fileId,
+                update: encodeAwarenessUpdate(awareness, changed),
+            })
+        }
+
+        awareness.on('update', handleLocalAwareness)
+
+        function handleRemoteAwareness({
+            fileId: incomingId,
+            update,
+        }: {
+            fileId: string
+            update: ArrayBuffer
+        }) {
+            if (incomingId !== fileId) return
+
+            // The guard stops an incoming state from being re-broadcast as if
+            // it were this client's own.
+            remoteAwareness = true
+            applyAwarenessUpdate(awareness, new Uint8Array(update), 'remote')
+            remoteAwareness = false
+        }
+
+        socket.on('awareness:update', handleRemoteAwareness)
 
         // Ask the room for its state, then seed from the server only if nobody
         // answers in time. Silence means this client is the first one here.
         socket.emit('file:sync-request', { fileId })
         const seedTimer = setTimeout(seedFromServer, 400)
 
-        setDoc(next)
+        setSession({ doc, awareness })
 
         return () => {
             clearTimeout(seedTimer)
-            next.off('update', handleLocalUpdate)
+            doc.off('update', handleLocalUpdate)
+            awareness.off('update', handleLocalAwareness)
             socket.off('file:update', handleRemoteUpdate)
             socket.off('file:sync-request', handleSyncRequest)
-            next.destroy()
+            socket.off('awareness:update', handleRemoteAwareness)
+
+            // Tell the room this cursor is gone before tearing down, or it
+            // would linger on everyone else's screen until they reload.
+            removeAwarenessStates(awareness, [doc.clientID], 'unmount')
+            awareness.destroy()
+            doc.destroy()
         }
         // initialText is deliberately not a dependency: it seeds the document
         // once, and re-running on every keystroke would rebuild it constantly.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [socket, fileId])
 
-    return doc
+    return session
 }

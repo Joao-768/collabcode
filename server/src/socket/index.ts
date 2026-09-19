@@ -104,6 +104,15 @@ export function createSocketServer(httpServer: HttpServer) {
                 io.to(to).emit('file:update', { fileId, update })
             },
         )
+
+        socket.on(
+            'awareness:update',
+            ({ fileId, update }: { fileId: string; update: ArrayBuffer }) => {
+                for (const room of socket.data.rooms ?? []) {
+                    socket.to(room).emit('awareness:update', { fileId, update })
+                }
+            },
+        )
     })
 
     return io

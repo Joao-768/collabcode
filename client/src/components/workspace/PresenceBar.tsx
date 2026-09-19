@@ -8,7 +8,7 @@ type PresenceBarProps = {
 /** A stable colour per user, derived from the id so every client agrees. */
 const COLORS = ['#f472b6', '#7ee787', '#fbbf24', '#60a5fa', '#c084fc', '#fb923c']
 
-function colorFor(id: string): string {
+export function colorFor(id: string): string {
     let hash = 0
     for (const char of id) {
         hash = (hash * 31 + char.charCodeAt(0)) | 0
