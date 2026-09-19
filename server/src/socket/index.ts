@@ -84,11 +84,45 @@ export function createSocketServer(httpServer: HttpServer) {
             }
         })
 
-        socket.on('file:change', ({ fileId, content }) => {
+        socket.on('file:update', ({ fileId, update }: { fileId: string; update: ArrayBuffer }) => {
+            // Someone joined and asked for the current state. Answer with the whole
+            // document, addressed to them alone.
+            function handleSyncRequest({
+                fileId: wantedId,
+                from,
+            }: {
+                fileId: string
+                from: string
+            }) {
+                if (wantedId !== fileId) return
+                socket!.emit('file:sync-response', {
+                    to: from,
+                    fileId,
+                    update: Y.encodeStateAsUpdate(next),
+                })
+            }
+
+            socket.on('file:sync-request', handleSyncRequest)
+
             for (const room of socket.data.rooms ?? []) {
-                socket.to(room).emit('file:changed', { fileId, content })
+                socket.to(room).emit('file:update', { fileId, update })
             }
         })
+
+        // A late joiner asks the room for its current state, and whoever is
+        // already there answers with their whole document.
+        socket.on('file:sync-request', ({ fileId }: { fileId: string }) => {
+            for (const room of socket.data.rooms ?? []) {
+                socket.to(room).emit('file:sync-request', { fileId, from: socket.id })
+            }
+        })
+
+        socket.on(
+            'file:sync-response',
+            ({ to, fileId, update }: { to: string; fileId: string; update: ArrayBuffer }) => {
+                io.to(to).emit('file:update', { fileId, update })
+            },
+        )
     })
 
     return io

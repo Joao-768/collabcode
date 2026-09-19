@@ -8,6 +8,8 @@ import { useSocket } from '@/hooks/useSocket'
 import { usePresence } from '@/hooks/usePresence'
 import { useAuth } from '@/context/authContext'
 import { PresenceBar } from '@/components/workspace/PresenceBar'
+import { useYDoc } from '@/hooks/useYDoc'
+import { CollaborativeEditor } from '@/components/workspace/CollaborativeEditor'
 
 type FileContent = ProjectFile & {
     content: string
@@ -22,6 +24,7 @@ export function WorkspacePage() {
     const [error, setError] = useState<string | null>(null)
     const socket = useSocket(projectId)
     const presentUsers = usePresence(socket)
+    const doc = useYDoc(socket, activeFile?.id ?? null, activeFile?.content ?? '')
     const { user } = useAuth()
 
     useEffect(() => {
@@ -53,19 +56,30 @@ export function WorkspacePage() {
     }, [projectId])
 
     useEffect(() => {
-        if (!activeFile) return
+        if (!doc || !activeFile) return
 
-        const timer = setTimeout(() => {
-            fetch(`${import.meta.env.VITE_API_URL}/files/${activeFile.id}`, {
-                method: 'PUT',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: activeFile.content }),
-            }).catch(() => setError('Could not save'))
-        }, 1000)
+        const ytext = doc.getText('content')
+        let timer: ReturnType<typeof setTimeout>
 
-        return () => clearTimeout(timer)
-    }, [activeFile?.id, activeFile?.content])
+        function scheduleSave() {
+            clearTimeout(timer)
+            timer = setTimeout(() => {
+                fetch(`${import.meta.env.VITE_API_URL}/files/${activeFile!.id}`, {
+                    method: 'PUT',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: ytext.toString() }),
+                }).catch(() => setError('Could not save'))
+            }, 1000)
+        }
+
+        ytext.observe(scheduleSave)
+
+        return () => {
+            clearTimeout(timer)
+            ytext.unobserve(scheduleSave)
+        }
+    }, [doc, activeFile])
 
     async function handleSelect(fileId: string) {
         if (!projectId) return
@@ -114,22 +128,6 @@ export function WorkspacePage() {
         }
     }
 
-    useEffect(() => {
-        if (!socket) return
-
-        function handleChanged({ fileId, content }: { fileId: string; content: string }) {
-            setActiveFile((current) =>
-                current && current.id === fileId ? { ...current, content } : current,
-            )
-        }
-
-        socket.on('file:changed', handleChanged)
-
-        return () => {
-            socket.off('file:changed', handleChanged)
-        }
-    }, [socket])
-
     if (loading) {
         return (
             <div className="grid min-h-svh place-items-center bg-canvas">
@@ -172,20 +170,7 @@ export function WorkspacePage() {
 
                 <main className="min-w-0 flex-1">
                     {activeFile ? (
-                        <textarea
-                            value={activeFile.content}
-                            onChange={(e) => {
-                                const content = e.target.value
-                                setActiveFile({ ...activeFile, content })
-                                socket?.emit('file:change', {
-                                    fileId: activeFile.id,
-                                    content,
-                                })
-                            }}
-
-                            spellCheck={false}
-                            className="h-full w-full resize-none bg-canvas p-4 font-mono text-[13.5px] leading-relaxed text-heading outline-none"
-                        />
+                        doc && <CollaborativeEditor doc={doc} />
                     ) : (
                         <div className="grid h-full place-items-center px-8 text-center">
                             <div>
