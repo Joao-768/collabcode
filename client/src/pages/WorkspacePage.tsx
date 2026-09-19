@@ -9,7 +9,7 @@ import { usePresence } from '@/hooks/usePresence'
 import { useAuth } from '@/context/authContext'
 import { PresenceBar } from '@/components/workspace/PresenceBar'
 import { useYDoc } from '@/hooks/useYDoc'
-import { CollaborativeEditor } from '@/components/workspace/CollaborativeEditor'
+import { CodeEditor } from '@/components/workspace/CodeEditor'
 
 type FileContent = ProjectFile & {
     content: string
@@ -170,7 +170,7 @@ export function WorkspacePage() {
 
                 <main className="min-w-0 flex-1">
                     {activeFile ? (
-                        doc && <CollaborativeEditor doc={doc} />
+                        doc && <CodeEditor doc={doc} language="javascript" />
                     ) : (
                         <div className="grid h-full place-items-center px-8 text-center">
                             <div>

@@ -19,11 +19,18 @@ export function useYDoc(socket: Socket | null, fileId: string | null, initialTex
 
         const next = new Y.Doc()
 
-        // Seed from what the server stored. A plain insert is enough because
-        // this document is brand new and empty: there is nothing to conflict
-        // with yet.
-        if (initialText) {
-            next.getText('content').insert(0, initialText)
+        // Seeding is the first client's job alone. Two clients each inserting
+        // the stored text would be two independent sets of characters as far as
+        // the CRDT is concerned, and it would faithfully keep both: the
+        // document would read as the file twice over.
+        let seeded = false
+
+        function seedFromServer() {
+            if (seeded) return
+            seeded = true
+            if (initialText) {
+                next.getText('content').insert(0, initialText)
+            }
         }
 
         // Local edits produce updates to broadcast. The origin check keeps this
@@ -46,6 +53,10 @@ export function useYDoc(socket: Socket | null, fileId: string | null, initialTex
             update: ArrayBuffer
         }) {
             if (incomingId !== fileId) return
+
+            // An answer arrived, so someone else already holds this document
+            // and there is nothing to seed.
+            seeded = true
             Y.applyUpdate(next, new Uint8Array(update), 'remote')
         }
 
@@ -64,13 +75,15 @@ export function useYDoc(socket: Socket | null, fileId: string | null, initialTex
 
         socket.on('file:sync-request', handleSyncRequest)
 
-        // Ask whoever is already in the room for their state, so a client that
-        // joins late does not start from an empty document.
+        // Ask the room for its state, then seed from the server only if nobody
+        // answers in time. Silence means this client is the first one here.
         socket.emit('file:sync-request', { fileId })
+        const seedTimer = setTimeout(seedFromServer, 400)
 
         setDoc(next)
 
         return () => {
+            clearTimeout(seedTimer)
             next.off('update', handleLocalUpdate)
             socket.off('file:update', handleRemoteUpdate)
             socket.off('file:sync-request', handleSyncRequest)
