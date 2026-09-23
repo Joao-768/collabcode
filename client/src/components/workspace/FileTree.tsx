@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { LuFile, LuPlus, LuTrash2, LuPencil } from 'react-icons/lu'
-import { SUPPORTED_LANGUAGES } from '@/types'
+import { languageFromName } from '@/types'
 import type { ProjectFile, SupportedLanguage } from '@/types'
 
 type FileTreeProps = {
@@ -25,7 +25,6 @@ export function FileTree({
 }: FileTreeProps) {
     const [creating, setCreating] = useState(false)
     const [newName, setNewName] = useState('')
-    const [newLanguage, setNewLanguage] = useState<SupportedLanguage>('javascript')
     const [renamingId, setRenamingId] = useState<string | null>(null)
     const [renameValue, setRenameValue] = useState('')
 
@@ -33,7 +32,9 @@ export function FileTree({
         event.preventDefault()
         if (!newName.trim()) return
 
-        await onCreate(newName.trim(), newLanguage)
+        // The extension already says what the file is, so it is read from the
+        // name rather than asked for a second time.
+        await onCreate(newName.trim(), languageFromName(newName.trim()))
         setNewName('')
         setCreating(false)
     }
@@ -72,17 +73,6 @@ export function FileTree({
                         placeholder="index.js"
                         className="w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 font-mono text-xs text-heading outline-none transition-colors placeholder:text-faint focus:border-cream/50"
                     />
-                    <select
-                        value={newLanguage}
-                        onChange={(e) => setNewLanguage(e.target.value as SupportedLanguage)}
-                        className="w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 font-mono text-xs text-muted outline-none transition-colors focus:border-cream/50"
-                    >
-                        {SUPPORTED_LANGUAGES.map((lang) => (
-                            <option key={lang} value={lang}>
-                                {lang}
-                            </option>
-                        ))}
-                    </select>
                 </form>
             )}
 

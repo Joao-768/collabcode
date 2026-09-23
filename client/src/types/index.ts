@@ -23,6 +23,26 @@ export const SUPPORTED_LANGUAGES = ['javascript', 'typescript', 'json', 'html', 
 
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number]
 
+const EXTENSIONS: Record<string, SupportedLanguage> = {
+    js: 'javascript',
+    mjs: 'javascript',
+    cjs: 'javascript',
+    jsx: 'javascript',
+    ts: 'typescript',
+    tsx: 'typescript',
+    json: 'json',
+    html: 'html',
+    htm: 'html',
+    css: 'css',
+}
+
+/** The language a file name implies. Naming a file index.js already says what
+ *  it is, so asking again in a dropdown is a question with one right answer. */
+export function languageFromName(name: string): SupportedLanguage {
+    const extension = name.split('.').pop()?.toLowerCase() ?? ''
+    return EXTENSIONS[extension] ?? 'javascript'
+}
+
 export type ProjectFile = {
     id: string
     name: string
