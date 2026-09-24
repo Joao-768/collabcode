@@ -5,7 +5,6 @@ import { RegisterPage } from '@/pages/RegisterPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
-import { WorkspacePage } from '@/pages/WorkspacePage'
 
 export const router = createBrowserRouter([
     { path: '/', element: <LandingPage /> },
@@ -15,7 +14,13 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
             { path: '/dashboard', element: <DashboardPage /> },
-            { path: '/workspace/:id', element: <WorkspacePage /> },
+            {
+                path: '/workspace/:id',
+                // Monaco is most of the bundle, so only fetch it once a project opens.
+                lazy: async () => ({
+                    Component: (await import('@/pages/WorkspacePage')).WorkspacePage,
+                }),
+            },
         ],
     },
     { path: '*', element: <NotFoundPage /> },
