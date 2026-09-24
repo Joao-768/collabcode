@@ -22,9 +22,10 @@ app.use(
                 // blob URL; without this the default-src 'self' policy blocks it.
                 'worker-src': ["'self'", 'blob:'],
                 'child-src': ["'self'", 'blob:'],
-                // Monaco injects its editor styles and loads its own fonts.
-                'style-src': ["'self'", "'unsafe-inline'"],
-                'font-src': ["'self'", 'data:'],
+                // Monaco injects its editor styles and loads its own fonts;
+                // the UI fonts come from Google Fonts.
+                'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+                'font-src': ["'self'", 'data:', 'https://fonts.gstatic.com'],
                 // Same-origin websockets for the collaborative session.
                 'connect-src': ["'self'", 'ws:', 'wss:'],
             },

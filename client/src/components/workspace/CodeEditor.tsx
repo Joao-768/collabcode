@@ -6,6 +6,7 @@ import type { Awareness } from 'y-protocols/awareness'
 import { MonacoBinding } from 'y-monaco'
 import { Spinner } from '@/components/ui/Spinner'
 import { EDITOR_THEME, defineEditorTheme } from '@/lib/editor-theme'
+import '@/lib/monaco'
 import type { SupportedLanguage } from '@/types'
 
 type CodeEditorProps = {
