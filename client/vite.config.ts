@@ -1,11 +1,25 @@
+import { networkInterfaces } from 'node:os'
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
+// The machine's address on the local network, so the Share button can hand
+// out a link that opens on a phone instead of one pointing at localhost.
+function lanAddress(): string | undefined {
+    for (const addresses of Object.values(networkInterfaces())) {
+        const found = addresses?.find((a) => a.family === 'IPv4' && !a.internal)
+        if (found) return found.address
+    }
+}
+
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
     plugins: [react(), tailwindcss()],
+    define:
+        command === 'serve'
+            ? { 'import.meta.env.VITE_LAN_HOST': JSON.stringify(lanAddress() ?? '') }
+            : {},
     server: {
         // 5173 is usually taken by another project, so this one is pinned.
         port: 5175,
@@ -33,4 +47,4 @@ export default defineConfig({
             ),
         },
     },
-})
+}))

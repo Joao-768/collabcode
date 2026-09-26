@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { LuCheck, LuLink, LuArrowLeft, LuPlay } from 'react-icons/lu'
 import { PresenceBar } from '@/components/workspace/PresenceBar'
 import type { PresenceUser } from '@/types'
+import { copyText, shareableUrl } from '@/lib/share'
 
 type WorkspaceHeaderProps = {
     projectName: string
@@ -24,7 +25,7 @@ export function WorkspaceHeader({
     const [copied, setCopied] = useState(false)
 
     async function handleShare() {
-        await navigator.clipboard.writeText(window.location.href)
+        await copyText(shareableUrl())
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
     }

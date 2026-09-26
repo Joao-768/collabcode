@@ -6,14 +6,14 @@ type AuthLayoutProps = {
     title: string
     subtitle: string
     children: ReactNode
-    /** Rodape: pergunta + link para a outra pagina de auth. */
+    /** Footer: a question plus a link to the other auth page. */
     footerQuestion: string
     footerTo: string
     footerLabel: string
 }
 
-/** Moldura partilhada pelo login e pelo registo: marca em cima,
- *  titulo serif, formulario e um rodape com a rota alternativa. */
+/** Frame shared by log in and register: wordmark on top, serif title,
+ *  the form, and a footer linking to the other page. */
 export function AuthLayout({
     title,
     subtitle,
@@ -59,7 +59,7 @@ type FieldProps = {
     children: ReactNode
 }
 
-/** Label em mono maiusculo por cima do input, como os cabecalhos da app. */
+/** Uppercase mono label above the input, like the app's panel headers. */
 export function Field({ label, children }: FieldProps) {
     return (
         <label className="flex flex-col gap-2">

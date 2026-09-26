@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
+import { nextPath, withNext } from '@/lib/redirect'
 import { useAuthStore } from '@/stores/auth.store'
 import * as authService from '@/services/auth.service'
 import { ApiError } from '@/services/api'
@@ -9,6 +10,7 @@ import { AuthLayout, Field, FormError } from '@/components/auth/AuthLayout'
 
 export function LoginPage() {
     const navigate = useNavigate()
+    const [search] = useSearchParams()
     const user = useAuthStore((s) => s.user)
     const setUser = useAuthStore((s) => s.setUser)
 
@@ -18,7 +20,7 @@ export function LoginPage() {
     const [submitting, setSubmitting] = useState(false)
 
     if (user) {
-        return <Navigate to="/dashboard" replace />
+        return <Navigate to={nextPath(search)} replace />
     }
 
     async function handleSubmit(event: FormEvent) {
@@ -29,7 +31,7 @@ export function LoginPage() {
         try {
             const { user } = await authService.login(email, password)
             setUser(user)
-            void navigate('/dashboard')
+            void navigate(nextPath(search))
         } catch (err) {
             setError(err instanceof ApiError ? err.message : 'Something went wrong')
         } finally {
@@ -42,7 +44,7 @@ export function LoginPage() {
             title="Log in to your room"
             subtitle="Pick up right where your team left off."
             footerQuestion="Don't have an account?"
-            footerTo="/register"
+            footerTo={withNext('/register', search)}
             footerLabel="Get started"
         >
             <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
