@@ -54,13 +54,37 @@ export function useAwareness(
             applyAwarenessUpdate(instance, new Uint8Array(cursor), REMOTE_ORIGIN)
         }
 
+        // Awareness only sends on change, so someone who opens the file while
+        // we sit still would not see our cursor. Greet each newcomer with it.
+        function handleChange({ added }: { added: number[] }, origin: unknown) {
+            if (origin !== REMOTE_ORIGIN || added.length === 0) return
+            if (!instance.getLocalState()) return
+
+            socket!.emit(SOCKET_EVENTS.CURSOR_UPDATE, {
+                fileId,
+                cursor: encodeAwarenessUpdate(instance, [instance.clientID]),
+            })
+        }
+
+        // Closing the tab skips React's cleanup, and without this the others
+        // would keep seeing our cursor until awareness times it out (30s).
+        function handlePageHide() {
+            instance.setLocalState(null)
+        }
+
         instance.on('update', handleLocalUpdate)
+        instance.on('change', handleChange)
         socket.on(SOCKET_EVENTS.CURSOR_UPDATE, handleRemote)
+        window.addEventListener('pagehide', handlePageHide)
 
         setAwareness(instance)
 
         return () => {
+            // Tell the others our cursor is gone before we stop sending.
+            instance.setLocalState(null)
             instance.off('update', handleLocalUpdate)
+            instance.off('change', handleChange)
+            window.removeEventListener('pagehide', handlePageHide)
             socket.off(SOCKET_EVENTS.CURSOR_UPDATE, handleRemote)
             instance.destroy()
             setAwareness(null)

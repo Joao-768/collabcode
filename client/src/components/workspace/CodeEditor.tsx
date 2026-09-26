@@ -6,6 +6,7 @@ import type { Awareness } from 'y-protocols/awareness'
 import { MonacoBinding } from 'y-monaco'
 import { Spinner } from '@/components/ui/Spinner'
 import { EDITOR_THEME, defineEditorTheme } from '@/lib/editor-theme'
+import { styleRemoteCursors } from '@/lib/remote-cursors'
 import '@/lib/monaco'
 import type { SupportedLanguage } from '@/types'
 
@@ -35,6 +36,12 @@ export function CodeEditor({ language, doc, synced, awareness }: CodeEditorProps
             binding.destroy()
         }
     }, [instance, doc, synced, awareness])
+
+    useEffect(() => {
+        if (!awareness) return
+
+        return styleRemoteCursors(awareness)
+    }, [awareness])
 
     return (
         <Editor
