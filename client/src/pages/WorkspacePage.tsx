@@ -16,9 +16,18 @@ import { useAwareness } from '@/hooks/useAwareness'
 import { useChat } from '@/hooks/useChat'
 import { Chat } from '@/components/workspace/Chat'
 import { Console } from '@/components/workspace/Console'
+import { PanelRail } from '@/components/workspace/PanelRail'
 import { runJavaScript } from '@/lib/runner'
 import type { ConsoleLine } from '@/lib/runner'
 import { useAuthStore } from '@/stores/auth.store'
+
+// Matches Tailwind's md breakpoint. Below it the side panels open as drawers
+// over the editor instead of sitting beside it.
+const WIDE_QUERY = '(min-width: 48rem)'
+
+function isWideScreen(): boolean {
+    return window.matchMedia(WIDE_QUERY).matches
+}
 
 export function WorkspacePage() {
     const { id: projectId } = useParams<{ id: string }>()
@@ -45,6 +54,11 @@ export function WorkspacePage() {
     const [consoleLines, setConsoleLines] = useState<ConsoleLine[]>([])
     const [consoleInput, setConsoleInput] = useState('')
     const [running, setRunning] = useState(false)
+
+    // On a phone the editor gets the screen, and the panels start closed.
+    const [filesOpen, setFilesOpen] = useState(isWideScreen)
+    const [chatOpen, setChatOpen] = useState(isWideScreen)
+    const [consoleOpen, setConsoleOpen] = useState(true)
     const canRun = activeFile?.language === 'javascript'
     const isOwner = project?.ownerId === currentUser?.id
 
@@ -52,6 +66,7 @@ export function WorkspacePage() {
         if (!doc || !canRun) return
 
         setRunning(true)
+        setConsoleOpen(true)
         const code = doc.getText('content').toString()
         const inputs = consoleInput
             .split(',')
@@ -152,6 +167,8 @@ export function WorkspacePage() {
         try {
             const { file } = await fileService.getFile(fileId)
             setActiveFile(file)
+            // The drawer covers the editor on a phone, so get it out of the way.
+            if (!isWideScreen()) setFilesOpen(false)
         } catch (err) {
             setError(err instanceof ApiError ? err.message : 'Could not open that file')
         }
@@ -218,10 +235,6 @@ export function WorkspacePage() {
 
     return (
         <div className="flex h-svh flex-col bg-canvas text-heading">
-            <div className="grid place-items-center border-b border-border bg-surface px-4 py-2.5 text-center md:hidden">
-                <p className="label m-0 text-dim">Built for desktop screens</p>
-            </div>
-
             <WorkspaceHeader
                 projectName={project?.name ?? 'Workspace'}
                 users={presentUsers}
@@ -244,16 +257,41 @@ export function WorkspacePage() {
                 </p>
             )}
 
-            <div className="flex min-h-0 flex-1">
-                <FileTree
-                    files={files}
-                    activeFileId={activeFile?.id ?? null}
-                    canDelete={isOwner}
-                    onSelect={handleSelect}
-                    onCreate={handleCreate}
-                    onRename={handleRename}
-                    onDelete={handleDelete}
-                />
+            <div className="relative flex min-h-0 flex-1">
+                {(filesOpen || chatOpen) && (
+                    <button
+                        aria-label="Close panel"
+                        onClick={() => {
+                            setFilesOpen(false)
+                            setChatOpen(false)
+                        }}
+                        className="absolute inset-0 z-10 bg-black/60 md:hidden"
+                    />
+                )}
+
+                {filesOpen ? (
+                    <div className="absolute inset-y-0 left-0 z-20 shadow-2xl shadow-black md:static md:shadow-none">
+                        <FileTree
+                            files={files}
+                            activeFileId={activeFile?.id ?? null}
+                            canDelete={isOwner}
+                            onSelect={handleSelect}
+                            onCreate={handleCreate}
+                            onRename={handleRename}
+                            onDelete={handleDelete}
+                            onCollapse={() => setFilesOpen(false)}
+                        />
+                    </div>
+                ) : (
+                    <PanelRail
+                        label="Files"
+                        side="left"
+                        onExpand={() => {
+                            setFilesOpen(true)
+                            if (!isWideScreen()) setChatOpen(false)
+                        }}
+                    />
+                )}
 
                 <main className="min-w-0 flex-1">
                     {activeFile ? (
@@ -275,12 +313,26 @@ export function WorkspacePage() {
                     )}
                 </main>
 
-                <Chat
-                    messages={messages}
-                    loading={chatLoading}
-                    currentUserId={currentUser?.id}
-                    onSend={sendMessage}
-                />
+                {chatOpen ? (
+                    <div className="absolute inset-y-0 right-0 z-20 shadow-2xl shadow-black md:static md:shadow-none">
+                        <Chat
+                            messages={messages}
+                            loading={chatLoading}
+                            currentUserId={currentUser?.id}
+                            onSend={sendMessage}
+                            onCollapse={() => setChatOpen(false)}
+                        />
+                    </div>
+                ) : (
+                    <PanelRail
+                        label="Chat"
+                        side="right"
+                        onExpand={() => {
+                            setChatOpen(true)
+                            if (!isWideScreen()) setFilesOpen(false)
+                        }}
+                    />
+                )}
             </div>
 
             <Console
@@ -288,6 +340,8 @@ export function WorkspacePage() {
                 onClear={() => setConsoleLines([])}
                 input={consoleInput}
                 onInputChange={setConsoleInput}
+                open={consoleOpen}
+                onToggle={() => setConsoleOpen((open) => !open)}
             />
         </div>
     )

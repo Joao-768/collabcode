@@ -1,8 +1,7 @@
 import { io, type Socket } from 'socket.io-client'
 
-// Empty string means "same origin", which is how production is served.
-const SOCKET_URL =
-    import.meta.env.VITE_SOCKET_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:4000')
+// Empty string means "same origin": Render in production, the Vite proxy in dev.
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? ''
 
 let socket: Socket | null = null
 

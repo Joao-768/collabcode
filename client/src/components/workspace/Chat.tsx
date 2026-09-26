@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { LuArrowUp } from 'react-icons/lu'
+import { LuArrowUp, LuChevronRight } from 'react-icons/lu'
 import { Spinner } from '@/components/ui/Spinner'
 import type { ChatMessage } from '@/types'
 
@@ -9,13 +9,14 @@ type ChatProps = {
     loading: boolean
     currentUserId: string | undefined
     onSend: (content: string) => void
+    onCollapse: () => void
 }
 
 function formatTime(iso: string): string {
     return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-export function Chat({ messages, loading, currentUserId, onSend }: ChatProps) {
+export function Chat({ messages, loading, currentUserId, onSend, onCollapse }: ChatProps) {
     const [draft, setDraft] = useState('')
     const bottomRef = useRef<HTMLDivElement | null>(null)
 
@@ -33,8 +34,15 @@ export function Chat({ messages, loading, currentUserId, onSend }: ChatProps) {
 
     return (
         <aside className="flex h-full w-68 flex-col border-l border-border bg-canvas">
-            <div className="border-b border-border px-4 py-3">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <span className="label text-dim">Chat</span>
+                <button
+                    onClick={onCollapse}
+                    aria-label="Hide chat"
+                    className="rounded-md p-1 text-dim transition-colors hover:bg-surface hover:text-cream"
+                >
+                    <LuChevronRight className="size-3.5" />
+                </button>
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 py-4">

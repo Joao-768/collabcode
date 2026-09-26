@@ -74,11 +74,12 @@ cd server && npx prisma migrate dev && cd ..
 npm run dev
 ```
 
-- Client: http://localhost:5173
+- Client: http://localhost:5175 (also on your LAN IP, so a phone on the same Wi-Fi can open it)
 - API: http://localhost:4000
 
-The client's `VITE_API_URL` and `VITE_SOCKET_URL` default to the API above; copy
-`client/.env.example` to `client/.env` to change them.
+The Vite dev server proxies `/api` and `/socket.io` to the API, so the client talks
+to its own origin in development just as it does in production. Set `VITE_API_URL`
+and `VITE_SOCKET_URL` in `client/.env` only to point it at a different API.
 
 ### Trying the collaboration
 

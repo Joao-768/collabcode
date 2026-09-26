@@ -1,7 +1,6 @@
-// In production the API is served from the same origin as the app, so a
-// relative path is correct and needs no build-time configuration.
-const API_URL =
-    import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '/api' : 'http://localhost:4000/api')
+// The API always shares the app's origin: Render serves both in production and
+// the Vite dev server proxies it in development, so a relative path works.
+const API_URL = import.meta.env.VITE_API_URL ?? '/api'
 
 export class ApiError extends Error {
     status: number

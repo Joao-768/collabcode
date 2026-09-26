@@ -6,10 +6,19 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [react(), tailwindcss()],
-    // Fixed port: the API's CORS policy and cookie origin are tied to it.
     server: {
-        port: 5173,
+        // 5173 is usually taken by another project, so this one is pinned.
+        port: 5175,
         strictPort: true,
+        // Listen on the network too, so a phone on the same Wi-Fi can open it.
+        host: true,
+        // The API and websockets are proxied so the app, the API and the auth
+        // cookie share one origin, the same way production is served. That is
+        // what lets a phone use the LAN address without any CORS setup.
+        proxy: {
+            '/api': 'http://localhost:4000',
+            '/socket.io': { target: 'http://localhost:4000', ws: true },
+        },
     },
     resolve: {
         alias: {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { LuFile, LuPlus, LuTrash2, LuPencil } from 'react-icons/lu'
+import { LuChevronLeft, LuFile, LuPlus, LuTrash2, LuPencil } from 'react-icons/lu'
 import { languageFromName } from '@/types'
 import type { ProjectFile, SupportedLanguage } from '@/types'
 
@@ -12,6 +12,7 @@ type FileTreeProps = {
     onCreate: (name: string, language: SupportedLanguage) => Promise<void>
     onRename: (fileId: string, name: string) => Promise<void>
     onDelete: (fileId: string) => Promise<void>
+    onCollapse: () => void
 }
 
 export function FileTree({
@@ -22,6 +23,7 @@ export function FileTree({
     onCreate,
     onRename,
     onDelete,
+    onCollapse,
 }: FileTreeProps) {
     const [creating, setCreating] = useState(false)
     const [newName, setNewName] = useState('')
@@ -51,13 +53,22 @@ export function FileTree({
         <aside className="flex h-full w-58 flex-col border-r border-border bg-canvas">
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <span className="label text-dim">Files</span>
-                <button
-                    onClick={() => setCreating((v) => !v)}
-                    aria-label="New file"
-                    className="rounded-md p-1 text-dim transition-colors hover:bg-surface hover:text-cream"
-                >
-                    <LuPlus className="size-3.5" />
-                </button>
+                <div className="flex items-center gap-1">
+                    <button
+                        onClick={() => setCreating((v) => !v)}
+                        aria-label="New file"
+                        className="rounded-md p-1 text-dim transition-colors hover:bg-surface hover:text-cream"
+                    >
+                        <LuPlus className="size-3.5" />
+                    </button>
+                    <button
+                        onClick={onCollapse}
+                        aria-label="Hide files"
+                        className="rounded-md p-1 text-dim transition-colors hover:bg-surface hover:text-cream"
+                    >
+                        <LuChevronLeft className="size-3.5" />
+                    </button>
+                </div>
             </div>
 
             {creating && (
@@ -116,7 +127,7 @@ export function FileTree({
                                     <span className="truncate font-mono text-xs">{file.name}</span>
                                 </button>
 
-                                <span className="hidden shrink-0 items-center gap-1 group-hover:flex">
+                                <span className="flex shrink-0 items-center gap-1 md:hidden md:group-hover:flex">
                                     <button
                                         onClick={() => {
                                             setRenamingId(file.id)

@@ -30,8 +30,8 @@ export function WorkspaceHeader({
     }
 
     return (
-        <header className="flex shrink-0 items-center justify-between gap-4 border-b border-border bg-canvas px-4 py-3">
-            <div className="flex min-w-0 items-center gap-3">
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-canvas px-3 py-3 sm:gap-4 sm:px-4">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
                 <Link
                     to="/dashboard"
                     aria-label="Back to dashboard"
@@ -44,7 +44,7 @@ export function WorkspaceHeader({
                 </span>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex shrink-0 items-center gap-3 sm:gap-4">
                 <PresenceBar users={users} currentUserId={currentUserId} />
 
                 <div className="flex items-center gap-2">
@@ -59,6 +59,7 @@ export function WorkspaceHeader({
 
                     <button
                         onClick={handleShare}
+                        aria-label="Copy workspace link"
                         className="label flex items-center gap-2 rounded-full border border-border-strong px-3.5 py-2 text-muted transition-colors hover:border-cream/50 hover:text-cream"
                     >
                         {copied ? (
@@ -66,7 +67,7 @@ export function WorkspaceHeader({
                         ) : (
                             <LuLink className="size-3" />
                         )}
-                        {copied ? 'Copied' : 'Share'}
+                        <span className="hidden sm:inline">{copied ? 'Copied' : 'Share'}</span>
                     </button>
                 </div>
             </div>
