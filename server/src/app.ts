@@ -28,8 +28,14 @@ app.use(
                 'font-src': ["'self'", 'data:', 'https://fonts.gstatic.com'],
                 // Same-origin websockets for the collaborative session.
                 'connect-src': ["'self'", 'ws:', 'wss:'],
+                // Only meaningful behind HTTPS. On a plain http://localhost run
+                // it makes the browser request every asset over https, and
+                // the page never loads.
+                'upgrade-insecure-requests': env.NODE_ENV === 'production' ? [] : null,
             },
         },
+        // Same reason: HSTS only where the site is actually served over HTTPS.
+        strictTransportSecurity: env.NODE_ENV === 'production',
     }),
 )
 app.disable('x-powered-by')

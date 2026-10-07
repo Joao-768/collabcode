@@ -1,4 +1,4 @@
-// Theme preference: 'system' follows the OS, 'light' and 'dark' override it.
+// Theme preference: dark by default; 'light' overrides it and 'system' follows the OS.
 // public/theme.js applies the saved choice before React loads; this module
 // keeps it in sync afterwards and tells subscribers (the Monaco editor) when
 // the resolved theme changes.
@@ -15,9 +15,10 @@ const listeners = new Set<() => void>()
 export function readThemeMode(): ThemeMode {
     try {
         const saved = localStorage.getItem(STORAGE_KEY)
-        return saved === 'light' || saved === 'dark' ? saved : 'system'
+        // Dark is the default; light and system are explicit choices.
+        return saved === 'light' || saved === 'system' ? saved : 'dark'
     } catch {
-        return 'system'
+        return 'dark'
     }
 }
 
@@ -32,8 +33,7 @@ function apply(mode: ThemeMode) {
 
 export function setThemeMode(mode: ThemeMode) {
     try {
-        if (mode === 'system') localStorage.removeItem(STORAGE_KEY)
-        else localStorage.setItem(STORAGE_KEY, mode)
+        localStorage.setItem(STORAGE_KEY, mode)
     } catch {
         // Storage unavailable (private mode): the choice lasts for this page only.
     }

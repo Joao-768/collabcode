@@ -22,7 +22,7 @@ export default defineConfig(({ command }) => ({
             : {},
     server: {
         // 5173 is usually taken by another project, so this one is pinned.
-        port: 5175,
+        port: 5177,
         strictPort: true,
         // Listen on the network too, so a phone on the same Wi-Fi can open it.
         host: true,
@@ -30,8 +30,8 @@ export default defineConfig(({ command }) => ({
         // cookie share one origin, the same way production is served. That is
         // what lets a phone use the LAN address without any CORS setup.
         proxy: {
-            '/api': 'http://localhost:4000',
-            '/socket.io': { target: 'http://localhost:4000', ws: true },
+            '/api': 'http://localhost:4100',
+            '/socket.io': { target: 'http://localhost:4100', ws: true },
         },
     },
     resolve: {

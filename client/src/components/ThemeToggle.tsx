@@ -1,7 +1,7 @@
 import { LuMonitor, LuMoon, LuSun } from 'react-icons/lu'
 import { setThemeMode, useThemeMode, type ThemeMode } from '@/lib/theme'
 
-const NEXT: Record<ThemeMode, ThemeMode> = { system: 'light', light: 'dark', dark: 'system' }
+const NEXT: Record<ThemeMode, ThemeMode> = { dark: 'light', light: 'system', system: 'dark' }
 const LABEL: Record<ThemeMode, string> = {
     system: 'Theme: follows your system',
     light: 'Theme: light',
@@ -9,7 +9,7 @@ const LABEL: Record<ThemeMode, string> = {
 }
 const ICON = { system: LuMonitor, light: LuSun, dark: LuMoon }
 
-/** One button that cycles system, light and dark. The label says the current
+/** One button that cycles dark, light and system. The label says the current
  *  mode and that clicking changes it. */
 export function ThemeToggle({ className = '' }: { className?: string }) {
     const mode = useThemeMode()

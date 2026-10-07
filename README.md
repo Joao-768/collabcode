@@ -24,8 +24,8 @@ simultaneous edits merge without a lock, a diff, or a last-write-wins overwrite.
 - **Chat** — per-room messages with author and timestamp, persisted
 - **Run** — execute the open JavaScript file and see its output in a console
 - **Persistence** — the document survives reloads, restarts and everyone leaving
-- **Light and dark themes** — light, dark or follow the system, remembered per
-  browser, with the editor switching along with the app
+- **Dark and light themes**: dark by default, light or follow the system on
+  request, remembered per browser, with the editor switching along with the app
 
 ---
 
@@ -76,8 +76,8 @@ cd server && npx prisma migrate dev && cd ..
 npm run dev
 ```
 
-- Client: http://localhost:5175 (also on your LAN IP, so a phone on the same Wi-Fi can open it)
-- API: http://localhost:4000
+- Client: http://localhost:5177 (also on your LAN IP, so a phone on the same Wi-Fi can open it)
+- API: http://localhost:4100
 
 The Vite dev server proxies `/api` and `/socket.io` to the API, so the client talks
 to its own origin in development just as it does in production. Set `VITE_API_URL`
@@ -245,8 +245,8 @@ languages would mean building that infrastructure first.
 
 ## Themes
 
-Light, dark and system, chosen with the toggle in every header (it cycles system,
-light, dark, and its label names the current mode).
+Dark by default, with light and system as choices: the toggle in every header
+cycles dark, light and system, and its label names the current mode.
 
 - **No flash.** `client/public/theme.js` runs in `<head>` before the first paint,
   reads the saved choice (`cc-theme` in `localStorage`) and sets
