@@ -6,8 +6,13 @@ import { useAuthStore } from '@/stores/auth.store'
 import * as projectService from '@/services/project.service'
 import { ApiError } from '@/services/api'
 import { Spinner } from '@/components/ui/Spinner'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { Wordmark } from '@/components/Wordmark'
 import type { Project } from '@/types'
+
+function plural(count: number, noun: string): string {
+    return `${count} ${noun}${count === 1 ? '' : 's'}`
+}
 
 export function DashboardPage() {
     const navigate = useNavigate()
@@ -87,6 +92,7 @@ export function DashboardPage() {
 
                     <div className="flex items-center gap-5">
                         <span className="label hidden text-dim sm:inline">{user?.name}</span>
+                        <ThemeToggle />
                         <button
                             onClick={handleSignOut}
                             className="label flex items-center gap-2 text-muted transition-colors hover:text-cream"
@@ -130,7 +136,7 @@ export function DashboardPage() {
                 </form>
 
                 {error && (
-                    <p className="mb-6 rounded-lg border border-red-900/50 bg-red-950/30 px-3.5 py-2.5 text-sm text-red-300">
+                    <p className="mb-6 rounded-lg border border-danger-border bg-danger-bg px-3.5 py-2.5 text-sm text-danger">
                         {error}
                     </p>
                 )}
@@ -162,8 +168,8 @@ export function DashboardPage() {
                                             {project.name}
                                         </p>
                                         <p className="mt-1.5 m-0 font-mono text-[11.5px] text-dim">
-                                            {project._count?.files ?? 0} files ·{' '}
-                                            {project._count?.members ?? 1} members ·{' '}
+                                            {plural(project._count?.files ?? 0, 'file')} ·{' '}
+                                            {plural(project._count?.members ?? 1, 'member')} ·{' '}
                                             {project.ownerId === user?.id
                                                 ? 'Owner'
                                                 : 'Collaborator'}
@@ -176,7 +182,7 @@ export function DashboardPage() {
                                     <button
                                         onClick={() => handleDelete(project.id)}
                                         aria-label={`Delete ${project.name}`}
-                                        className="mr-4 rounded-lg p-2 text-faint transition-colors hover:text-red-400"
+                                        className="mr-4 rounded-lg p-2 text-faint transition-colors hover:text-danger-strong"
                                     >
                                         <LuTrash2 className="size-4" />
                                     </button>

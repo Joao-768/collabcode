@@ -94,7 +94,7 @@ export function Chat({ messages, loading, currentUserId, onSend, onCollapse }: C
                     type="submit"
                     disabled={!draft.trim()}
                     aria-label="Send message"
-                    className="grid size-8 shrink-0 place-items-center rounded-full bg-cream text-canvas transition-colors hover:bg-white disabled:bg-cream/40 disabled:text-canvas/60 disabled:hover:bg-cream/40"
+                    className="grid size-8 shrink-0 place-items-center rounded-full bg-cream text-canvas transition-colors hover:bg-solid-hover disabled:bg-cream/40 disabled:text-canvas/60 disabled:hover:bg-cream/40"
                 >
                     <LuArrowUp className="size-3.5" />
                 </button>

@@ -5,9 +5,10 @@ import * as Y from 'yjs'
 import type { Awareness } from 'y-protocols/awareness'
 import { MonacoBinding } from 'y-monaco'
 import { Spinner } from '@/components/ui/Spinner'
-import { EDITOR_THEME, defineEditorTheme } from '@/lib/editor-theme'
+import { EDITOR_THEMES, defineEditorThemes } from '@/lib/editor-theme'
 import { styleRemoteCursors } from '@/lib/remote-cursors'
 import '@/lib/monaco'
+import { useResolvedTheme } from '@/lib/theme'
 import type { SupportedLanguage } from '@/types'
 
 type CodeEditorProps = {
@@ -19,6 +20,8 @@ type CodeEditorProps = {
 
 export function CodeEditor({ language, doc, synced, awareness }: CodeEditorProps) {
     const [instance, setInstance] = useState<editor.IStandaloneCodeEditor | null>(null)
+    // The editor follows the app theme, including changes while it is open.
+    const theme = useResolvedTheme()
 
     useEffect(() => {
         const model = instance?.getModel()
@@ -46,10 +49,10 @@ export function CodeEditor({ language, doc, synced, awareness }: CodeEditorProps
     return (
         <Editor
             height="100%"
-            theme={EDITOR_THEME}
+            theme={EDITOR_THEMES[theme]}
             language={language}
             loading={<Spinner className="size-5" />}
-            beforeMount={defineEditorTheme}
+            beforeMount={defineEditorThemes}
             onMount={(editorInstance) => setInstance(editorInstance)}
             options={{
                 fontSize: 13,

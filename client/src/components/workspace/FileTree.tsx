@@ -142,7 +142,7 @@ export function FileTree({
                                         <button
                                             onClick={() => void onDelete(file.id)}
                                             aria-label={`Delete ${file.name}`}
-                                            className="rounded p-0.5 text-faint transition-colors hover:text-red-400"
+                                            className="rounded p-0.5 text-faint transition-colors hover:text-danger-strong"
                                         >
                                             <LuTrash2 className="size-3" />
                                         </button>

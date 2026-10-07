@@ -1,3 +1,4 @@
+import { textOn } from '@/lib/color'
 import type { PresenceUser } from '@/types'
 
 type PresenceBarProps = {
@@ -9,8 +10,9 @@ function initials(name: string): string {
     return name.trim().charAt(0).toUpperCase() || '?'
 }
 
-/** Avatares sobrepostos + contagem. As cores vem da presenca (uma por
- *  utilizador), por isso continuam vivas mesmo com a paleta creme. */
+/** Overlapping avatars and a count. Colours come from presence (one per
+ *  person), so they stay vivid in both themes; the initial picks black or
+ *  white for contrast. */
 export function PresenceBar({ users, currentUserId }: PresenceBarProps) {
     if (users.length === 0) return null
 
@@ -24,7 +26,7 @@ export function PresenceBar({ users, currentUserId }: PresenceBarProps) {
                         className={`flex size-6 items-center justify-center rounded-full border-2 border-canvas font-mono text-[10px] font-medium ${
                             i > 0 ? '-ml-2' : ''
                         }`}
-                        style={{ background: user.color, color: '#0a0a0a' }}
+                        style={{ background: user.color, color: textOn(user.color) }}
                     >
                         {initials(user.name)}
                     </span>

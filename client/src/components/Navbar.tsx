@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { Wordmark } from '@/components/Wordmark'
 
 type NavbarProps = {
@@ -37,7 +38,8 @@ export function Navbar({ githubUrl = 'https://github.com' }: NavbarProps) {
                     </a>
                 </div>
 
-                <div className="ml-auto flex items-center gap-5 md:ml-0">
+                <div className="ml-auto flex items-center gap-3 sm:gap-5 md:ml-0">
+                    <ThemeToggle />
                     <Link
                         to="/login"
                         className="label text-muted transition-colors hover:text-cream"

@@ -13,8 +13,8 @@ type ConsoleProps = {
 const LEVEL_CLASS: Record<ConsoleLine['level'], string> = {
     log: 'text-muted',
     info: 'text-muted',
-    warn: 'text-amber-400',
-    error: 'text-red-400',
+    warn: 'text-warning',
+    error: 'text-danger-strong',
     system: 'text-faint',
 }
 

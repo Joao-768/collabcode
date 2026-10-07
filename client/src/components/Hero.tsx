@@ -7,12 +7,12 @@ type HeroProps = {
 
 export function Hero({ githubUrl = 'https://github.com' }: HeroProps) {
     return (
-        // justify-end assenta o conteudo na base do ecra: o espaco que sobra
-        // acumula-se todo em cima, como na referencia.
+        // justify-end sets the content on the bottom of the screen, so the
+        // spare room collects above it.
         <section id="top" className="screen relative justify-end pb-[clamp(3rem,10vh,7rem)]">
             <div className="relative mx-auto w-full max-w-7xl">
-                {/* Alinhado a esquerda, como a referencia -- da-lhe um ar
-                    editorial que o centrado nao tem. */}
+                {/* Left-aligned: it reads editorial in a way centred text
+                    does not. */}
                 <h1 className="display m-0 max-w-4xl text-[clamp(3rem,7.5vw,6.25rem)] text-heading">
                     Code together.
                     <br />
@@ -46,11 +46,11 @@ export function Hero({ githubUrl = 'https://github.com' }: HeroProps) {
     )
 }
 
-/** A janela de codigo tem ecra proprio -- juntar-lhe o titulo obrigava a
- *  encolher os dois ate nenhum respirar. */
+/** The code window gets its own screen: sharing one with the title would
+ *  shrink both until neither had room. */
 export function HeroPreview({ showCursors = true }: { showCursors?: boolean }) {
     return (
-        // Padding curto e px-4: a janela cresce para quase todo o ecra.
+        // Short padding and px-4: the window grows to fill most of the screen.
         <section
             id="workspace"
             className="screen justify-stretch px-4! py-[clamp(1.5rem,4vh,3rem)]"
@@ -63,7 +63,7 @@ export function HeroPreview({ showCursors = true }: { showCursors?: boolean }) {
 function CodeWindow({ showCursors }: { showCursors: boolean }) {
     return (
         <div className="relative mx-auto flex w-full max-w-[1600px] flex-1 flex-col">
-            <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border-strong bg-[#0d0d0d] shadow-[0_40px_120px_-40px_rgba(0,0,0,.95)]">
+            <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border-strong bg-editor shadow-[0_40px_120px_-40px_var(--shadow)]">
                 <div className="flex items-center gap-3.5 border-b border-border bg-surface px-4 py-3">
                     <div className="flex gap-1.5">
                         <span className="size-2.5 rounded-full bg-faint" />
@@ -130,7 +130,7 @@ function Avatar({
 
 function FileExplorer() {
     return (
-        <aside className="flex flex-col gap-[clamp(0.35rem,1vh,0.6rem)] border-r border-border bg-[#0b0b0b] px-3 py-[clamp(1rem,2.5vh,2rem)] font-mono text-[11.5px] text-dim">
+        <aside className="flex flex-col gap-[clamp(0.35rem,1vh,0.6rem)] border-r border-border bg-editor-gutter px-3 py-[clamp(1rem,2.5vh,2rem)] font-mono text-[11.5px] text-dim">
             <div className="label pl-1 text-faint">Explorer</div>
             <div className="flex items-center gap-1.75 p-1 text-muted">
                 <span className="size-1.5 rounded-xs border border-faint" />
@@ -176,10 +176,10 @@ function CodeBody({ showCursors }: { showCursors: boolean }) {
             <div className="flex">
                 <LineNumber n={1} />
                 <span>
-                    <span className="text-[#ff9492]">import</span>{' '}
+                    <span className="text-syntax-keyword">import</span>{' '}
                     <span className="text-cream">{'{ useRoom }'}</span>{' '}
-                    <span className="text-[#ff9492]">from</span>{' '}
-                    <span className="text-[#7ee787]">"@collabcode/live"</span>;
+                    <span className="text-syntax-keyword">from</span>{' '}
+                    <span className="text-syntax-string">"@collabcode/live"</span>;
                 </span>
             </div>
             <div className="flex">
@@ -189,8 +189,8 @@ function CodeBody({ showCursors }: { showCursors: boolean }) {
             <div className="flex">
                 <LineNumber n={3} />
                 <span>
-                    <span className="text-[#ff9492]">export function</span>{' '}
-                    <span className="text-[#dcbdfb]">Editor</span>
+                    <span className="text-syntax-keyword">export function</span>{' '}
+                    <span className="text-syntax-type">Editor</span>
                     <span className="text-cream">({'{ roomId }'})</span> {'{'}
                 </span>
             </div>
@@ -199,9 +199,9 @@ function CodeBody({ showCursors }: { showCursors: boolean }) {
                 <LineNumber n={4} />
                 <span>
                     {'        '}
-                    <span className="text-[#ff9492]">const</span>{' '}
+                    <span className="text-syntax-keyword">const</span>{' '}
                     <span className="text-cream">{'{ peers, doc }'}</span> ={' '}
-                    <span className="text-[#dcbdfb]">useRoom</span>(
+                    <span className="text-syntax-type">useRoom</span>(
                     <span className="text-cream">roomId</span>);
                     {showCursors && <PeerLabel color="#f472b6" textColor="#1a0a12" name="Maya" />}
                 </span>
@@ -213,7 +213,7 @@ function CodeBody({ showCursors }: { showCursors: boolean }) {
             </div>
             <div className="flex">
                 <LineNumber n={6} />
-                <span className="text-dim">
+                <span className="text-syntax-comment">
                     {'        // presence + patches stream over one socket'}
                 </span>
             </div>
@@ -222,10 +222,10 @@ function CodeBody({ showCursors }: { showCursors: boolean }) {
                 <span>
                     {'        '}
                     <span className="text-cream">doc</span>.
-                    <span className="text-[#dcbdfb]">on</span>(
-                    <span className="text-[#7ee787]">"change"</span>, (
-                    <span className="text-[#ffa657]">patch</span>){' '}
-                    <span className="text-[#ff9492]">=&gt;</span> {'{'}
+                    <span className="text-syntax-type">on</span>(
+                    <span className="text-syntax-string">"change"</span>, (
+                    <span className="text-syntax-number">patch</span>){' '}
+                    <span className="text-syntax-keyword">=&gt;</span> {'{'}
                 </span>
             </div>
 
@@ -233,7 +233,7 @@ function CodeBody({ showCursors }: { showCursors: boolean }) {
                 <LineNumber n={8} />
                 <span>
                     {'            '}
-                    <span className="text-[#dcbdfb]">broadcast</span>(
+                    <span className="text-syntax-type">broadcast</span>(
                     <span className="text-cream">patch</span>,{' '}
                     <span className="text-cream">peers</span>);
                     {showCursors && <PeerLabel color="#7ee787" textColor="#062015" name="Ravi" />}
@@ -253,12 +253,12 @@ function CodeBody({ showCursors }: { showCursors: boolean }) {
                 <LineNumber n={11} />
                 <span>
                     {'        '}
-                    <span className="text-[#ff9492]">return</span>{' '}
+                    <span className="text-syntax-keyword">return</span>{' '}
                     <span className="text-cream">&lt;</span>
-                    <span className="text-[#7ee787]">Canvas</span>{' '}
-                    <span className="text-[#ffa657]">doc</span>=
+                    <span className="text-syntax-string">Canvas</span>{' '}
+                    <span className="text-syntax-number">doc</span>=
                     <span className="text-cream">{'{doc}'}</span>{' '}
-                    <span className="text-[#ffa657]">peers</span>=
+                    <span className="text-syntax-number">peers</span>=
                     <span className="text-cream">{'{peers}'}</span>{' '}
                     <span className="text-cream">/&gt;</span>;
                     {showCursors && <PeerLabel color="#fbbf24" textColor="#1f1005" name="Ada" />}

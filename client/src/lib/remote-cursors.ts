@@ -1,4 +1,5 @@
 import type { Awareness } from 'y-protocols/awareness'
+import { textOn } from '@/lib/color'
 
 type RemoteUser = { name?: unknown; color?: unknown }
 
@@ -34,7 +35,7 @@ function rulesFor(clientId: number, user: RemoteUser): string {
     padding: 0 5px;
     border-radius: 3px 3px 3px 0;
     background: ${color};
-    color: #0a0a0a;
+    color: ${textOn(color)};
     font: 500 10px/1.6 'Geist Mono', ui-monospace, monospace;
     white-space: nowrap;
     pointer-events: none;

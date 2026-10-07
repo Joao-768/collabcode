@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { LuCheck, LuLink, LuArrowLeft, LuPlay } from 'react-icons/lu'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { PresenceBar } from '@/components/workspace/PresenceBar'
 import type { PresenceUser } from '@/types'
 import { copyText, shareableUrl } from '@/lib/share'
@@ -49,6 +50,7 @@ export function WorkspaceHeader({
                 <PresenceBar users={users} currentUserId={currentUserId} />
 
                 <div className="flex items-center gap-2">
+                    <ThemeToggle />
                     <button
                         onClick={onRun}
                         disabled={!canRun || running}

@@ -24,6 +24,8 @@ simultaneous edits merge without a lock, a diff, or a last-write-wins overwrite.
 - **Chat** — per-room messages with author and timestamp, persisted
 - **Run** — execute the open JavaScript file and see its output in a console
 - **Persistence** — the document survives reloads, restarts and everyone leaving
+- **Light and dark themes** — light, dark or follow the system, remembered per
+  browser, with the editor switching along with the app
 
 ---
 
@@ -227,11 +229,43 @@ a blob URL. That puts it in an opaque origin: user code has no access to the pag
 its cookies, or its storage — `document` is not even defined there. Execution is
 cut off after 3 seconds, which also handles infinite loops.
 
+The user's code is written into the worker script itself rather than passed to
+`eval()`. The production Content-Security-Policy has no `'unsafe-eval'`, and it
+should not; it does allow `blob:` workers, so a worker whose source already holds
+the program runs under that same policy. A syntax error makes the script fail to
+load and is reported in the console.
+
 Server-side execution is intentionally out of scope. Running untrusted code on the
 backend needs real isolation (a container or a VM per run, with CPU, memory and
 network limits), and a Web Worker gives a JavaScript-only feature the isolation it
 needs without pretending a sandbox exists where it does not. Supporting other
 languages would mean building that infrastructure first.
+
+---
+
+## Themes
+
+Light, dark and system, chosen with the toggle in every header (it cycles system,
+light, dark, and its label names the current mode).
+
+- **No flash.** `client/public/theme.js` runs in `<head>` before the first paint,
+  reads the saved choice (`cc-theme` in `localStorage`) and sets
+  `<html data-theme>`. It is a file because the CSP only allows same-origin
+  scripts.
+- **Identity.** The palette is editorial: near-black and cream, a display serif and
+  mono labels, with bright colours kept for presence, cursors and console levels.
+  Dark mode is cream on black. Light mode is the same page printed: warm cream
+  paper with near-black ink, and the solid pill turns into ink on paper.
+- **Tokens.** Colours are CSS variables in `client/src/index.css`, defined once per
+  theme and exposed to Tailwind through `@theme`. Names describe roles: `canvas`
+  (page), `surface`, `border`, `cream` (the strong foreground and the solid fill
+  in both themes), `heading`, `muted`, `dim`, `faint`, plus `live`, `warning`,
+  `danger` and the `syntax-*` colours.
+- **Editor.** `client/src/lib/editor-theme.ts` defines `collabcode-dark` and
+  `collabcode-light` Monaco themes with one set of syntax hues tuned for each
+  background, and the editor follows theme changes while it is open.
+- **Presence colours** stay the same in both themes; the initials and cursor name
+  tags pick black or white text, whichever has more contrast on that colour.
 
 ---
 
@@ -283,8 +317,9 @@ through it, so document sync is tested end to end rather than mocked.
 
 ## Known limitations
 
-- The workspace is built for desktop; small screens get a notice rather than a
-  usable layout.
+- The workspace is built for desktop. On a phone the file tree and chat collapse
+  into side rails and open as overlays, which works but is not where long editing
+  sessions are meant to happen.
 - `Run` supports JavaScript only, in the browser (see above).
 - Presence is per project, not per file: you see who is in the room, not which
   file each person has open.

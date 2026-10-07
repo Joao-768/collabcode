@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom'
 import { LuArrowLeft } from 'react-icons/lu'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { Wordmark } from '@/components/Wordmark'
 
 export function NotFoundPage() {
     return (
         <div className="grid min-h-svh grid-rows-[auto_1fr] bg-canvas text-heading">
-            <header className="px-8 py-6">
+            <header className="flex items-center justify-between px-8 py-6">
                 <Wordmark />
+                <ThemeToggle />
             </header>
 
             <main className="grid place-items-center px-8 pb-24">

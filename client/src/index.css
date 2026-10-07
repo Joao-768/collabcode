@@ -1,48 +1,145 @@
 @import 'tailwindcss';
 
-/* Tema do CollabCode. No Tailwind v4 o tema define-se em CSS com @theme:
-   cada variavel aqui gera as utilities correspondentes (bg-surface, text-muted, ...).
+/*
+ * CollabCode theme.
+ *
+ * The identity is editorial: near-black and cream, a display serif, mono
+ * labels. There is no interface blue; the accent is the cream itself, used by
+ * contrast (a solid cream pill on black). Bright colours are kept for
+ * functional signals only: presence, cursors, console levels.
+ *
+ * Light mode is the same page printed: warm cream paper with near-black ink,
+ * and the solid pill becomes ink on paper. Token names describe roles, so
+ * `cream` is "the strong foreground" in both themes (cream on dark, ink on
+ * light) and `canvas` is the page.
+ *
+ * The theme is set on <html data-theme> by /theme.js before first paint.
+ */
+:root {
+    color-scheme: light;
 
-   A paleta e editorial: preto quase puro por baixo, creme por cima. Nao ha azul
-   de interface -- o unico "acento" e o proprio creme, aplicado por contraste
-   (pill solida creme sobre preto). As cores vivas ficam reservadas para sinais
-   funcionais: presenca, cursores, niveis da consola. */
+    --canvas: #f3efe6;
+    --surface: #faf8f3;
+    --surface-raised: #ffffff;
+    --border: #e2dccf;
+    --border-strong: #cdc4b4;
+
+    /* Strong foreground (and the solid pill fill), body, secondary, faint. */
+    --cream: #1c1915;
+    --heading: #14120f;
+    --muted: #4f4943;
+    --dim: #6e675e;
+    --faint: #a59d90;
+    --solid-hover: #3a342c;
+
+    --live: #1a7f37;
+    --warning: #9a6700;
+    --danger: #b42318;
+    --danger-strong: #c4321f;
+    --danger-bg: #fbeae7;
+    --danger-border: #f0c4bc;
+
+    /* Code surfaces and syntax, shared by the landing mock-up and Monaco. */
+    --editor: #fdfbf7;
+    --editor-gutter: #f6f2ea;
+    --syntax-keyword: #cf222e;
+    --syntax-string: #116329;
+    --syntax-number: #953800;
+    --syntax-type: #8250df;
+    --syntax-comment: #8a8276;
+
+    --scrim: rgb(28 25 21 / 0.4);
+    --shadow: rgb(60 45 20 / 0.28);
+}
+
+:root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --canvas: #0a0a0a;
+    --surface: #101010;
+    --surface-raised: #161616;
+    --border: #1e1e1e;
+    --border-strong: #2c2c2c;
+
+    --cream: #ece7dd;
+    --heading: #f2eee6;
+    --muted: #9d968a;
+    --dim: #6b655c;
+    --faint: #46423c;
+    --solid-hover: #ffffff;
+
+    --live: #7ee787;
+    --warning: #fbbf24;
+    --danger: #fca5a5;
+    --danger-strong: #f87171;
+    --danger-bg: rgb(69 10 10 / 0.3);
+    --danger-border: rgb(127 29 29 / 0.5);
+
+    --editor: #0d0d0d;
+    --editor-gutter: #0b0b0b;
+    --syntax-keyword: #ff9492;
+    --syntax-string: #7ee787;
+    --syntax-number: #ffa657;
+    --syntax-type: #dcbdfb;
+    --syntax-comment: #6b655c;
+
+    --scrim: rgb(0 0 0 / 0.6);
+    --shadow: rgb(0 0 0 / 0.95);
+}
+
+/* `dark:` utilities follow the chosen theme, not only the OS setting. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* In Tailwind v4 the theme is CSS: each variable generates its utilities
+   (bg-surface, text-muted, ...). */
 @theme {
-    --color-canvas: #0a0a0a;
-    --color-surface: #101010;
-    --color-surface-raised: #161616;
-    --color-border: #1e1e1e;
-    --color-border-strong: #2c2c2c;
+    --color-canvas: var(--canvas);
+    --color-surface: var(--surface);
+    --color-surface-raised: var(--surface-raised);
+    --color-border: var(--border);
+    --color-border-strong: var(--border-strong);
 
-    /* Creme em varias intensidades. cream e o texto/fundo forte,
-       muted e o corpo, dim e o secundario, faint e o quase-invisivel. */
-    --color-cream: #ece7dd;
-    --color-heading: #f2eee6;
-    --color-muted: #9d968a;
-    --color-dim: #6b655c;
-    --color-faint: #46423c;
+    --color-cream: var(--cream);
+    --color-heading: var(--heading);
+    --color-muted: var(--muted);
+    --color-dim: var(--dim);
+    --color-faint: var(--faint);
+    --color-solid-hover: var(--solid-hover);
 
-    /* Mantidos so para estados funcionais (presenca, consola, erros). */
-    --color-live: #7ee787;
-    --color-success: #7ee787;
+    --color-live: var(--live);
+    --color-success: var(--live);
+    --color-warning: var(--warning);
+    --color-danger: var(--danger);
+    --color-danger-strong: var(--danger-strong);
+    --color-danger-bg: var(--danger-bg);
+    --color-danger-border: var(--danger-border);
+
+    --color-editor: var(--editor);
+    --color-editor-gutter: var(--editor-gutter);
+    --color-syntax-keyword: var(--syntax-keyword);
+    --color-syntax-string: var(--syntax-string);
+    --color-syntax-number: var(--syntax-number);
+    --color-syntax-type: var(--syntax-type);
+    --color-syntax-comment: var(--syntax-comment);
+
+    --color-scrim: var(--scrim);
+    --color-shadow: var(--shadow);
 
     --font-sans: Inter, Helvetica, Arial, sans-serif;
     --font-serif: 'Instrument Serif', 'Times New Roman', Times, serif;
     --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, Consolas, monospace;
 
-    /* Altura do header fixo. Vive aqui para que as seccoes de ecra inteiro e
-       as ancoras do nav a descontem sem ninguem repetir o valor a mao. */
+    /* Height of the fixed header. Full-screen sections and the nav anchors
+       subtract it from here instead of repeating the value. */
     --header-h: 72px;
 }
 
 @layer base {
     html {
-        color-scheme: dark;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
-        /* Sem isto, clicar numa ancora do nav esconde o topo da seccao
-           debaixo do header fixo. */
+        /* Smooth scrolling for the nav anchors. */
         scroll-behavior: smooth;
     }
 
@@ -50,7 +147,7 @@
         @apply bg-canvas text-muted font-sans;
     }
 
-    /* Seleccao a condizer com a paleta em vez do azul do sistema. */
+    /* Selection in the palette instead of the system blue. */
     ::selection {
         background: var(--color-cream);
         color: var(--color-canvas);
@@ -58,10 +155,9 @@
 }
 
 @layer components {
-    /* Uma seccao que ocupa exactamente um ecra, ja descontando o header fixo.
-       O conteudo fica centrado na vertical; o padding encolhe em ecras baixos
-       para o conteudo nao crescer para la do viewport e "vazar" para a
-       seccao seguinte. */
+    /* A section that fills one screen below the fixed header. Content is
+       centred vertically; padding shrinks on short screens so the content
+       never spills into the next section. */
     .screen {
         @apply flex flex-col justify-center px-8;
         min-height: calc(100svh - var(--header-h));
@@ -69,22 +165,22 @@
         scroll-margin-top: var(--header-h);
     }
 
-    /* Titulo editorial: serif de display, tracking apertado e um leading
-       curto para as duas linhas ficarem coladas como na referencia. */
+    /* Editorial title: display serif, tight tracking and a short leading so
+       two lines sit close together. */
     .display {
         @apply font-serif font-normal tracking-[-0.02em];
         line-height: 0.98;
     }
 
-    /* Label em mono maiusculo -- o tique visual que se repete no nav,
-       nos eyebrows das seccoes e nos cabecalhos de painel. */
+    /* Uppercase mono label: the recurring detail in the nav, section
+       eyebrows and panel headers. */
     .label {
         @apply font-mono text-[11px] tracking-[0.14em] uppercase;
     }
 
-    /* Botao pill creme (primario) e a sua versao outline (secundario).
-       No Tailwind v4 o @apply nao resolve classes de componente, por isso
-       a base repete-se em vez de ser referenciada. */
+    /* Solid pill (primary) and its outline version (secondary). In Tailwind
+       v4 @apply cannot reference component classes, so the base is shared
+       by listing all three selectors. */
     .pill,
     .pill-solid,
     .pill-outline {
@@ -93,22 +189,30 @@
         @apply transition-colors duration-150;
     }
 
-    /* Desactivada continua creme, apenas mais apagada: baixar so a opacidade
-       sobre preto tornava-a num cinzento morto que nao lia como botao. */
+    /* Disabled stays in the fill colour, only fainter: dropping the opacity
+       alone turned it into a dead grey that did not read as a button. */
     .pill-solid {
-        @apply bg-cream text-canvas hover:bg-white;
+        @apply bg-cream text-canvas hover:bg-solid-hover;
         @apply disabled:bg-cream/45 disabled:text-canvas/70 disabled:hover:bg-cream/45;
     }
 
     .pill-outline {
-        @apply border border-border-strong text-cream hover:border-cream/60 hover:bg-white/5;
+        @apply border border-border-strong text-cream hover:border-cream/60 hover:bg-cream/5;
     }
 
-    /* Campo de formulario. Foco marcado a creme, nao a azul. */
+    /* Form field. Focus is marked in the strong foreground, not in blue. */
     .field {
         @apply w-full rounded-lg border border-border-strong bg-surface px-3.5 py-2.5;
         @apply text-sm text-heading outline-none transition-colors duration-150;
         @apply placeholder:text-faint focus:border-cream/50;
+    }
+}
+
+/* Keyboard focus is visible everywhere, in the palette. */
+@layer base {
+    :focus-visible {
+        outline: 2px solid var(--cream);
+        outline-offset: 2px;
     }
 }
 

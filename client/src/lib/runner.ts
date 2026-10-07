@@ -74,8 +74,9 @@ self.onmessage = (event) => {
     }
 
     try {
-        // Indirect eval keeps the user's code out of this function's scope.
-        ;(0, eval)(event.data.code)
+        // Defined at the top level of the worker script, outside this
+        // function, so the user's code cannot see the setup's locals.
+        __userProgram()
     } catch (error) {
         lines.push({ level: 'error', text: format(error) })
     }
@@ -91,6 +92,15 @@ self.onmessage = (event) => {
 }
 `
 
+// The user's code is written into the worker script itself instead of being
+// passed to eval(). The production Content-Security-Policy has no
+// 'unsafe-eval' (and should not), but it allows blob: workers, so a worker
+// whose source already contains the program runs under the same policy. A
+// syntax error makes the script fail to load, which surfaces as worker.onerror.
+function workerSourceFor(code: string): string {
+    return `${WORKER_SOURCE}\nfunction __userProgram() {\n${code}\n}\n`
+}
+
 /**
  * Executes JavaScript in a Web Worker built from a blob URL, so it runs in an
  * opaque origin with no access to the page, its cookies or its storage. The
@@ -102,7 +112,7 @@ self.onmessage = (event) => {
 export function runJavaScript(code: string, inputs: string[] = []): Promise<RunResult> {
     return new Promise((resolve) => {
         const startedAt = performance.now()
-        const blob = new Blob([WORKER_SOURCE], { type: 'application/javascript' })
+        const blob = new Blob([workerSourceFor(code)], { type: 'application/javascript' })
         const url = URL.createObjectURL(blob)
         const worker = new Worker(url)
 
@@ -131,6 +141,6 @@ export function runJavaScript(code: string, inputs: string[] = []): Promise<RunR
             finish([{ level: 'error', text: event.message || 'Execution failed' }], false)
         }
 
-        worker.postMessage({ code, inputs })
+        worker.postMessage({ inputs })
     })
 }

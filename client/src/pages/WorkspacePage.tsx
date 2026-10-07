@@ -245,14 +245,14 @@ export function WorkspacePage() {
             />
 
             {(error ?? socketError) && (
-                <p className="m-0 border-b border-red-900/50 bg-red-950/30 px-4 py-2.5 font-mono text-[11.5px] text-red-300">
+                <p className="m-0 border-b border-danger-border bg-danger-bg px-4 py-2.5 font-mono text-[11.5px] text-danger">
                     {error ?? socketError}
                 </p>
             )}
 
             {!connected && !socketError && (
                 <p className="m-0 flex items-center gap-2 border-b border-border bg-surface px-4 py-2.5 font-mono text-[11.5px] text-muted">
-                    <span className="size-1.5 animate-pulse rounded-full bg-amber-400" />
+                    <span className="size-1.5 animate-pulse rounded-full bg-warning" />
                     Connecting…
                 </p>
             )}
@@ -265,12 +265,12 @@ export function WorkspacePage() {
                             setFilesOpen(false)
                             setChatOpen(false)
                         }}
-                        className="absolute inset-0 z-10 bg-black/60 md:hidden"
+                        className="absolute inset-0 z-10 bg-scrim md:hidden"
                     />
                 )}
 
                 {filesOpen ? (
-                    <div className="absolute inset-y-0 left-0 z-20 shadow-2xl shadow-black md:static md:shadow-none">
+                    <div className="absolute inset-y-0 left-0 z-20 shadow-2xl shadow-shadow md:static md:shadow-none">
                         <FileTree
                             files={files}
                             activeFileId={activeFile?.id ?? null}
@@ -314,7 +314,7 @@ export function WorkspacePage() {
                 </main>
 
                 {chatOpen ? (
-                    <div className="absolute inset-y-0 right-0 z-20 shadow-2xl shadow-black md:static md:shadow-none">
+                    <div className="absolute inset-y-0 right-0 z-20 shadow-2xl shadow-shadow md:static md:shadow-none">
                         <Chat
                             messages={messages}
                             loading={chatLoading}
