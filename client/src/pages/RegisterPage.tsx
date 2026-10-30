@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import * as authService from '@/services/auth.service'
 import { ApiError } from '@/services/api'
 import { Spinner } from '@/components/ui/Spinner'
-import { AuthLayout, Field, FormError } from '@/components/auth/AuthLayout'
+import { AuthLayout, Field, FormError, PasswordInput } from '@/components/auth/AuthLayout'
 
 export function RegisterPage() {
     const navigate = useNavigate()
@@ -17,6 +17,7 @@ export function RegisterPage() {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [confirm, setConfirm] = useState('')
     const [error, setError] = useState<string | null>(null)
     const [submitting, setSubmitting] = useState(false)
 
@@ -26,6 +27,10 @@ export function RegisterPage() {
 
     async function handleSubmit(event: FormEvent) {
         event.preventDefault()
+        if (password !== confirm) {
+            setError('The two passwords do not match')
+            return
+        }
         setError(null)
         setSubmitting(true)
 
@@ -75,15 +80,23 @@ export function RegisterPage() {
                 </Field>
 
                 <Field label="Password">
-                    <input
-                        type="password"
+                    <PasswordInput
                         required
                         minLength={8}
                         autoComplete="new-password"
                         placeholder="At least 8 characters"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="field"
+                    />
+                </Field>
+
+                <Field label="Confirm password">
+                    <PasswordInput
+                        required
+                        autoComplete="new-password"
+                        placeholder="Type it again"
+                        value={confirm}
+                        onChange={(e) => setConfirm(e.target.value)}
                     />
                 </Field>
 

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Wordmark } from '@/components/Wordmark'
+import { useAuthStore } from '@/stores/auth.store'
 
 type NavbarProps = {
     githubUrl?: string
@@ -13,6 +14,8 @@ const links = [
 ]
 
 export function Navbar({ githubUrl = 'https://github.com' }: NavbarProps) {
+    const user = useAuthStore((s) => s.user)
+
     return (
         <header className="fixed inset-x-0 top-0 z-40 h-(--header-h) border-b border-border/80 bg-canvas/85 backdrop-blur-md">
             <nav className="mx-auto flex h-full max-w-7xl items-center gap-10 px-8">
@@ -40,15 +43,23 @@ export function Navbar({ githubUrl = 'https://github.com' }: NavbarProps) {
 
                 <div className="ml-auto flex items-center gap-3 sm:gap-5 md:ml-0">
                     <ThemeToggle />
-                    <Link
-                        to="/login"
-                        className="label text-muted transition-colors hover:text-cream"
-                    >
-                        Log in
-                    </Link>
-                    <Link to="/register" className="pill-solid">
-                        Get started
-                    </Link>
+                    {user ? (
+                        <Link to="/dashboard" className="pill-solid">
+                            Open dashboard
+                        </Link>
+                    ) : (
+                        <>
+                            <Link
+                                to="/login"
+                                className="label text-muted transition-colors hover:text-cream"
+                            >
+                                Log in
+                            </Link>
+                            <Link to="/register" className="pill-solid">
+                                Get started
+                            </Link>
+                        </>
+                    )}
                 </div>
             </nav>
         </header>

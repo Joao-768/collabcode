@@ -1,5 +1,7 @@
-import type { ReactNode } from 'react'
+import { useState } from 'react'
+import type { InputHTMLAttributes, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { LuEye, LuEyeOff } from 'react-icons/lu'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Wordmark } from '@/components/Wordmark'
 
@@ -68,6 +70,27 @@ export function Field({ label, children }: FieldProps) {
             <span className="label text-dim">{label}</span>
             {children}
         </label>
+    )
+}
+
+/** Password input with an eye button that toggles the characters visible. */
+export function PasswordInput(props: Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>) {
+    const [visible, setVisible] = useState(false)
+    const Icon = visible ? LuEyeOff : LuEye
+
+    return (
+        <span className="relative block">
+            <input {...props} type={visible ? 'text' : 'password'} className="field pr-11" />
+            <button
+                type="button"
+                onClick={() => setVisible((v) => !v)}
+                aria-label={visible ? 'Hide password' : 'Show password'}
+                aria-pressed={visible}
+                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg text-dim transition-colors hover:text-cream"
+            >
+                <Icon className="size-4" aria-hidden="true" />
+            </button>
+        </span>
     )
 }
 
