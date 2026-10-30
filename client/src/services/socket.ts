@@ -1,7 +1,9 @@
 import { io, type Socket } from 'socket.io-client'
 
-// Empty string means "same origin": Render in production, the Vite proxy in dev.
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? ''
+// The API host serves several projects, each on its own Socket.io namespace.
+// Production: https://api.joao-caetano.com/collabcode (.env.production).
+// Development: the namespace on the same origin, through the Vite proxy.
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? '/collabcode'
 
 let socket: Socket | null = null
 

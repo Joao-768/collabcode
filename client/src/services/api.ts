@@ -1,5 +1,6 @@
-// The API always shares the app's origin: Render serves both in production and
-// the Vite dev server proxies it in development, so a relative path works.
+// Production: https://api.joao-caetano.com/collabcode/api (.env.production), a
+// different origin on the same site, so the auth cookie still travels with
+// credentials: 'include'. Development: the Vite dev server proxies /api.
 const API_URL = import.meta.env.VITE_API_URL ?? '/api'
 
 export class ApiError extends Error {

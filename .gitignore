@@ -10,6 +10,8 @@ dist-ssr
 .env
 .env.*
 !.env.example
+# Public API URLs for the production build, no secrets
+!client/.env.production
 
 # Logs
 logs

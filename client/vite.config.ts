@@ -26,12 +26,16 @@ export default defineConfig(({ command }) => ({
         strictPort: true,
         // Listen on the network too, so a phone on the same Wi-Fi can open it.
         host: true,
-        // The API and websockets are proxied so the app, the API and the auth
-        // cookie share one origin, the same way production is served. That is
-        // what lets a phone use the LAN address without any CORS setup.
+        // The API and websockets are proxied to the api-joao-caetano host, which
+        // serves this project at /collabcode, so the app, the API and the auth
+        // cookie share one origin in development. That is what lets a phone
+        // use the LAN address without any CORS setup.
         proxy: {
-            '/api': 'http://localhost:4100',
-            '/socket.io': { target: 'http://localhost:4100', ws: true },
+            '/api': {
+                target: 'http://localhost:4400',
+                rewrite: (path) => `/collabcode${path}`,
+            },
+            '/socket.io': { target: 'http://localhost:4400', ws: true },
         },
     },
     resolve: {
